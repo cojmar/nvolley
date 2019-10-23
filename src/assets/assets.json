@@ -1,0 +1,15 @@
+[
+    {
+        "name":"ball",
+        "path":"text!assets/svg/ball.svg"
+    },
+    {
+        "name":"player1",
+        "path":"text!assets/svg/player1.svg"
+    },
+    {
+        "name":"player2",
+        "path":"text!assets/svg/player2.svg"
+    }            
+
+]
