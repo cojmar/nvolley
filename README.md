@@ -1,2 +1,2 @@
 # nvolley
-## https://github.com/cojmar/nvolley
+## https://cojmar.github.io/nvolley/
