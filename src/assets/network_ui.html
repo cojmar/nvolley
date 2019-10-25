@@ -1,0 +1,61 @@
+<div id="client_console">
+	<div id="client_output"></div>
+	<div id ="client_input">
+		<table style="margin:0px;padding:0px;"><tr>
+			<td width="100%"><input type="text" id="client_command" style="width:100%"></td>
+			<td><button id="client_command_send">send</button></td>
+		</tr></table>
+	</div>
+</div>
+<style>
+	#client_console
+{
+	margin: 0;
+	padding: 0;
+	display: none;
+	position: fixed;
+	background-color: #dfeaee;
+	left: 0;
+	right: 0;
+	bottom: 28px;
+	top: 0;
+	border-top: 1px solid #77a6b7;
+	border-bottom: 1px solid #77a6b7;
+	text-align: left;
+}
+
+#client_input
+{
+	padding: 0;
+	margin: -3px;
+	background-color: #f0f4f7;
+}
+
+#client_output
+{
+	margin: 0;
+	padding: 5px;
+	background-color: #f0f4f7;
+	height: 99%;
+	overflow-y: auto;
+}
+
+#app_container
+{
+	position: fixed;
+	background-color: #fff;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+#client_command_send
+{
+	background: rgb(130, 224, 255);
+	border: solid 1px #939393;
+	height: 21px;
+	border-left: none;
+	border-right: none;
+}
+</style>

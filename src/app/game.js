@@ -1,5 +1,8 @@
-define(['phaser'], function(Phaser) {
+define(function(require) {
     'use strict';    
+    var Phaser = require('phaser');
+    var socket = require('./network');    
+    
     var game_assets = [];
     var my_game = new Phaser.Class({
 

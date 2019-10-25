@@ -1,7 +1,6 @@
 define(function(require) {    
-    require('css!assets/css/main');    
-    var zagame = require('./game');
-    zagame.init(
+    require('css!assets/css/main');        
+    require('./game').init(
         [
             {
                 "name":"ball",
