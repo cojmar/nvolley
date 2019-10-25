@@ -1,17 +1,18 @@
 define(function(require) {
     var io = require('socket.io');
     var $ = require('jquery');
-
+    var config = require('json!./config.json').network;
+    //console.log(config);
 	var client_loader =
 		{
-			'mode': 2//0 - silent,1 - console mode,2 - UI mode (hidden),3 Ui mode (opend)
+			'mode': config.mode//0 - silent,1 - console mode,2 - UI mode (hidden),3 Ui mode (opend)
 		};
 
 	client_loader.init_client = function()
 	{
 		var client =
 			{
-				socket: io('195.201.88.91:3000'),
+				socket: io(config.host+':'+config.port),
 				console: $('#client_console'),
 				text_input: $('#client_command'),
 				text_input_button: $('#client_command_send'),
@@ -24,8 +25,15 @@ define(function(require) {
 		{
 			client.socket.emit('client.cmd', {cmd: cmd, data: data});
 		};
-		
-		/* //== Room functions 
+        
+        
+        //== Room functions 
+            client.socket.on('host.set_room_data', function(data)
+			{
+                client.send_cmd('set_room_data', data.data);
+				if (config.debug) client.log(data);
+            });		
+        if (config.debug){
 			client.socket.on('room.data', function(data)
 			{
 				client.log(data);
@@ -48,8 +56,27 @@ define(function(require) {
 			client.socket.on('room.my_id', function(data)
 			{
 				client.log(data);
-			});			
-		//== END room functions */
+            });		           
+            client.socket.on('room.info', function(data)
+			{
+				client.log(data);
+            });		
+            
+        //== END room functions */
+        }
+        client.socket.on('server.help', function(data)
+		{		
+            var msg="";	
+            for (var n in data){
+                msg +="<a class='do_cmd' style='cursor:pointer;color:#df0000;'>/"+data[n]+" </a> "
+            }
+            client.log(msg);
+            $('.do_cmd').on('click',function(){
+                client.text_input.val($(this).html());
+                client.text_input.focus();
+
+            });
+		});
 		client.socket.on('msg', function(data)
 		{
 			msg = '<span style="color:#2c487e;">[' + data.nick + '] </span>' + data.msg;
@@ -69,13 +96,13 @@ define(function(require) {
 		client.socket.on('connect', function(data)
 		{
 			client.chat_id = '<span style="color:#2c487e;">[' + client.socket.id + '] </span>';
-			client.log('[connected][' + window.location.href + ']  [id][' + client.socket.id + ']', 0);
+			client.log('[connected][' + config.host + ']  [id][' + client.socket.id + ']', 0);
 			client.send_cmd('auth', {user: 'test', pass: 'test'});
 		});
 
 		client.socket.on('disconnect', function(data)
 		{
-			client.log('[disconnected][' + window.location.href + ']', 0);
+			client.log('[disconnected][' + config.host + ']', 0);
 		});
 
 		//===>DOM  functions
