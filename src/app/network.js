@@ -2,6 +2,7 @@ define(function(require) {
     var io = require('socket.io');
     var $ = require('jquery');
     var config = require('json!./config.json').network;
+    var server = config.servers[config.server]+':'+config.port;
     //console.log(config);
 	var client_loader =
 		{
@@ -12,7 +13,7 @@ define(function(require) {
 	{
 		var client =
 			{
-				socket: io(config.host+':'+config.port),
+				socket: io(server),
 				console: $('#client_console'),
 				text_input: $('#client_command'),
 				text_input_button: $('#client_command_send'),
@@ -96,13 +97,13 @@ define(function(require) {
 		client.socket.on('connect', function(data)
 		{
 			client.chat_id = '<span style="color:#2c487e;">[' + client.socket.id + '] </span>';
-			client.log('[connected][' + config.host + ']  [id][' + client.socket.id + ']', 0);
+			client.log('[connected][' + server + ']  [id][' + client.socket.id + ']', 0);
 			client.send_cmd('auth', {user: 'test', pass: 'test'});
 		});
 
 		client.socket.on('disconnect', function(data)
 		{
-			client.log('[disconnected][' + config.host + ']', 0);
+			client.log('[disconnected][' + server + ']', 0);
 		});
 
 		//===>DOM  functions
