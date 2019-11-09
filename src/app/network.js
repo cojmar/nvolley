@@ -24,7 +24,7 @@ define(function(require) {
 		//===>Soket  functions
 		client.send_cmd = function(cmd, data)
 		{
-			client.socket.emit('client.cmd', {cmd: cmd, data: data});
+			client.socket.send({cmd: cmd, data: data});
 		};
         
         
@@ -78,9 +78,9 @@ define(function(require) {
 
             });
 		});
-		client.socket.on('msg', function(data)
+		client.socket.on('room.msg', function(data)
 		{
-			msg = '<span style="color:#2c487e;">[' + data.nick + '] </span>' + data.msg;
+			msg = '<span style="color:#2c487e;">[' + data.user + '] </span>' + data.msg;
 			client.log(msg);
 		});
 
@@ -97,8 +97,7 @@ define(function(require) {
 		client.socket.on('connect', function(data)
 		{
 			client.chat_id = '<span style="color:#2c487e;">[' + client.socket.id + '] </span>';
-			client.log('[connected][' + server + ']  [id][' + client.socket.id + ']', 0);
-			client.send_cmd('auth', {user: 'test', pass: 'test'});
+			client.log('[connected][' + server + ']  [id][' + client.socket.id + ']', 0);		
 		});
 
 		client.socket.on('disconnect', function(data)
@@ -203,7 +202,7 @@ define(function(require) {
 			}
 			else
 			{
-				client.send_cmd('msg', msg);
+				client.send_cmd('room_msg', msg);
 			}
 
 			client.text_input.val('');

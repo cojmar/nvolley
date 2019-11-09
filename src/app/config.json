@@ -1,9 +1,9 @@
 {
     "network":{
         "servers":["195.201.88.91","cojmar.zapto.org"],
-        "server":0,
+        "server":1,
         "port":3000,
         "mode":3,
-        "debug":false
+        "debug":false        
     }    
 }

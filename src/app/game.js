@@ -2,7 +2,10 @@ define(function(require) {
     'use strict';    
     var Phaser = require('phaser');
     var net = require('./network');    
-    //console.log(net);
+    
+    net.socket.on('connect',function(){
+        net.send_cmd('auth', {user: 'test', pass: 'test'});
+    });
     var game_assets = [];
     var my_game = new Phaser.Class({
 
