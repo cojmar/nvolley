@@ -2,7 +2,7 @@ define(function(require) {
     var io = require('socket.io');
     var $ = require('jquery');
     var config = require('json!./config.json').network;
-    var server = config.servers[config.server]+':'+config.port;
+    var server = config.servers[config.server];
     //console.log(config);
 	var client_loader =
 		{
