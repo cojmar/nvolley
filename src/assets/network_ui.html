@@ -1,61 +1,94 @@
-<div id="client_console">
-	<div id="client_output"></div>
-	<div id ="client_input">
-		<table style="margin:0px;padding:0px;"><tr>
-			<td width="100%"><input type="text" id="client_command" style="width:100%"></td>
-			<td><button id="client_command_send">send</button></td>
-		</tr></table>
+<div id="client_console" class="client_decoration">
+	<div id="client_output" class="client_decoration"></div>	
+	<div id="client_room_users" class="client_decoration">cojmar<br>sanda</div>
+	<div id ="client_input" class="client_decoration">
+		<input type="text" id="client_command">
+		<button id="client_command_send">send</button>
 	</div>
 </div>
 <style>
-	#client_console
+#client_command
 {
+	height: 21px;
+	width: calc(100% - 48px);
+    box-sizing: border-box;
+  	border: 1px rgba(128, 128, 128, 0.973) solid;
+  	outline: none;
+	background-color:  #2b2a2ad8;
+	color: rgba(180, 173, 173, 0.973);
+}
+#client_command_send
+{
+	width: 44px;
+	height: 21px;
+	outline: none;
+	color: rgba(128, 128, 128, 0.35);
+	cursor: pointer;
+	color: rgba(128, 128, 128, 0.973);
+	border: 1px rgba(128, 128, 128, 0.973) solid;
+	background-color: #302f2fd8;
+}
+
+#client_command_send:active{
+	color:rgba(128, 128, 128, 0.35);
+	border: 1px rgba(128, 128, 128, 0.35) solid;
+}
+
+
+.client_decoration{
+	background-color: #302f2fd8;
+	border: 1px rgba(128, 128, 128, 0.35) solid;
+}
+#client_console
+{
+	width: 640px;
+	height: 350px;
 	margin: 0;
 	padding: 0;
 	display: none;
-	position: fixed;
-	background-color: #dfeaee;
-	left: 0;
+	position: fixed;	
 	right: 0;
-	bottom: 28px;
-	top: 0;
-	border-top: 1px solid #77a6b7;
-	border-bottom: 1px solid #77a6b7;
+	bottom: 0px;
 	text-align: left;
+	color: rgba(180, 173, 173, 0.973);
+	font-size: 12px;
+	font-family: "Helvetica Neue", Helvetica, Arial;
+}
+pula{
+	color:#395fa4;
+	color:#d6d6d6;
+	color:#159904;
+	color:#b95b4365;
+}
+
+				
+#client_room_users
+{	float: left;	
+	margin: 2px;
+	margin-left: 0px;
+	padding: 5px;
+	height: calc(100% - 50px);
+	overflow-y: auto;
+	width: calc(25% - 30px);
+	font-size: 20px;	
+}
+#client_output
+{	float: left;
+	width:75%;
+	margin: 2px;
+	padding: 5px;
+	height: calc(100% - 50px);
+	overflow-y: auto;
 }
 
 #client_input
 {
-	padding: 0;
-	margin: -3px;
-	background-color: #f0f4f7;
-}
-
-#client_output
-{
-	margin: 0;
+	float: left;
+	margin: 2px;
 	padding: 5px;
-	background-color: #f0f4f7;
-	height: 99%;
-	overflow-y: auto;
-}
-
-#app_container
-{
-	position: fixed;
-	background-color: #fff;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-}
-
-#client_command_send
-{
-	background: rgb(130, 224, 255);
-	border: solid 1px #939393;
-	height: 21px;
-	border-left: none;
-	border-right: none;
+	margin-top: 0px;
+	height: 20px;
+	width: calc(100% - 16px);
+	
 }
 </style>

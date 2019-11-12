@@ -19,6 +19,13 @@ define(function(require) {
 				text_input_button: $('#client_command_send'),
 				output_div: document.getElementById('client_output')
 			};
+			client.colors =
+				[
+					'rgba(180, 173, 173, 0.973)',
+					'#395fa4',
+					'#159904',
+					'rgba(128, 128, 128, 0.35)'
+				];
 
 		//==Add client functions
 		//===>Soket  functions
@@ -78,7 +85,7 @@ define(function(require) {
 		{		
             var msg="";	
             for (var n in data){
-                msg +="<a class='do_cmd' style='cursor:pointer;color:#df0000;'>/"+data[n]+" </a> "
+                msg +="<a class='do_cmd' style='cursor:pointer;color:"+client.colors[2]+";'>/"+data[n]+" </a> "
             }
             client.log(msg);
             $('.do_cmd').on('click',function(){
@@ -89,7 +96,7 @@ define(function(require) {
 		});
 		client.socket.on('room.msg', function(data)
 		{
-			msg = '<span style="color:#2c487e;">[' + data.user + '] </span>' + data.msg;
+			msg = '<span style="color:'+client.colors[3]+';">[' + data.user + '] </span>' + data.msg;
 			client.log(msg);
 		});
 
@@ -127,12 +134,7 @@ define(function(require) {
 				return false;
 			}
 
-			var colors =
-				[
-					'#395fa4',
-					'#d6d6d6',
-					'#df0000'
-				];
+			var colors =client.colors;
 
 			color = (typeof colors[color] !== 'undefined') ? 'style="color:' + colors[color] + '"' : '';			
 			if (typeof txt === 'object')
@@ -144,7 +146,7 @@ define(function(require) {
 
 			var time_stamp =
 				[
-					'<span style="color:#2c487e;">[',
+					'<span style="color:'+colors[1]+';">[',
 					('0' + d.getHours()).slice(-2),
 					':',
 					('0' + d.getMinutes()).slice(-2),
@@ -160,18 +162,18 @@ define(function(require) {
 
 		client.show = function()
 		{
-			client.console.show();
+			client.console.slideDown(300);
 			client.text_input.focus();
 		};
 
 		client.hide = function()
 		{
-			client.console.hide();
+			client.console.slideUp(300);
 		};
 
 		client.toggle = function()
 		{
-			client.console.toggle();
+			client.console.slideToggle(300);
 			client.text_input.focus();
 		};
 
