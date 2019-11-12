@@ -54,6 +54,15 @@ define(function(require) {
 			{
 				client.log(data);
 			});
+			client.socket.on('room.user_reconnect', function(data)
+			{
+				client.log(data);
+			});				
+			
+			client.socket.on('room.user_disconnect', function(data)
+			{
+				client.log(data);
+			});
 			client.socket.on('room.my_id', function(data)
 			{
 				client.log(data);
@@ -106,7 +115,7 @@ define(function(require) {
 		});
 
 		//===>DOM  functions
-		client.log = function(txt, color)
+		client.log = function(txt, color=0)
 		{
 			if (!client.output_div)
 			{
@@ -125,8 +134,7 @@ define(function(require) {
 					'#df0000'
 				];
 
-			color = (typeof colors[color] !== 'undefined') ? 'style="color:' + colors[color] + '"' : '';
-
+			color = (typeof colors[color] !== 'undefined') ? 'style="color:' + colors[color] + '"' : '';			
 			if (typeof txt === 'object')
 			{
 				txt = '<br><xmp>' + JSON.stringify(txt, null, 2) + '</xmp>';
@@ -170,7 +178,7 @@ define(function(require) {
 		client.send_input = function()
 		{
 			var msg = client.text_input.val();
-
+			if(msg.trim() ==='') return false;
 			if (msg.charAt(0) === '/')
 			{
 				data =
@@ -189,10 +197,10 @@ define(function(require) {
 				{
 					try
 					{
-						json_data = JSON.parse(data.data);
+						eval('json_data='+data.data);
 					}
 					catch (e)
-					{
+					{						
 						json_data = data.data;
 					}
 					data.data = json_data;
