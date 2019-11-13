@@ -122,8 +122,9 @@ define(function(require) {
 		});
 
 		//===>DOM  functions
-		client.log = function(txt, color=0)
+		client.log = function(txt, color)
 		{
+			if (!color) color = 0;
 			if (!client.output_div)
 			{
 				if (client_loader.mode === 1)
