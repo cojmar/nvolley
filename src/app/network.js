@@ -33,6 +33,8 @@ define(function(require) {
 		client.text_input_button= $('#client_command_send');
 		client.output_div= document.getElementById('client_output');
 		client.client_room_users= $('#client_room_users');
+		client.client_room= $('#client_room');
+		
 
 		client.colors =
 		[
@@ -56,10 +58,12 @@ define(function(require) {
 				var color=(n!==data.me)?client.colors[3]:client.colors[1];
 				r_users +="<div id=\"room_user_"+n+"\" style=\"color:"+color+";\">"+n+"</div>";					
 			}
+			client.text_input.attr("placeholder", ' You are Typing as "'+data.me+'" on "' +data.name+ '"');
 			client.client_room_users.html(r_users);
+			client.client_room.html(data.name);
 		});		
 		client.socket.on('room.user_join', function(data)
-		{
+		{	
 			client.client_room_users.append("<div id=\"room_user_"+data.user+"\" style=\"color:"+client.colors[3]+"\">"+data.user+"</div>");				
 		});			
 		client.socket.on('room.user_leave', function(data)
