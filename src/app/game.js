@@ -1,7 +1,8 @@
 define(function(require) {
     'use strict';    
     var Phaser = require('phaser');
-    var net = require('./network');
+    var config = require('json!./config.json');
+    var net = require('./network').start(config.network);   
     var Fingerprint = require('fingerprint');
     var fingerprint = new Fingerprint().get();
     var $ = require('jquery');
@@ -11,9 +12,6 @@ define(function(require) {
         $(function(){
             net.send_cmd('auth', {user: 'VOLLEY-'+fingerprint});
         })
-            
-        
-        
     });
     var game_assets = [];
     var my_game = new Phaser.Class({

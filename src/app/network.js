@@ -1,98 +1,123 @@
 define(function(require) {
     var io = require('socket.io');
-    var $ = require('jquery');
-    var config = require('json!./config.json').network;
-    var server = config.servers[config.server];
     //console.log(config);
-	var client_loader =
-		{
-			'mode': config.mode//0 - silent,1 - console mode,2 - UI mode (hidden),3 Ui mode (opend)
-		};
-
-	client_loader.init_client = function()
+	var client_loader ={};
+	var client = {}
+	client_loader.init_client = function(config)
 	{
-		var client =
+		if (typeof config !=='object') return false;
+		var server = config.servers[config.server];
+		client =
 			{
-				socket: io(server),
-				console: $('#client_console'),
-				text_input: $('#client_command'),
-				text_input_button: $('#client_command_send'),
-				output_div: document.getElementById('client_output')
+				socket: io(server),		
+				config:config,
+				server:server
 			};
-			client.colors =
-				[
-					'rgba(180, 173, 173, 0.973)',
-					'#395fa4',
-					'#159904',
-					'rgba(128, 128, 128, 0.35)'
-				];
-
 		//==Add client functions
 		//===>Soket  functions
 		client.send_cmd = function(cmd, data)
 		{
 			client.socket.send({cmd: cmd, data: data});
 		};
-        
+		if (client.config.mode >= 2) return client_loader.load_ui();
+		return client;
+	};
+	client_loader.load_ui = function()	
+	{			
+		var $ = require('jquery');    
+        var network_ui = require('text!assets/network_ui.html');
+        $('body').append(network_ui);
+		
+		client.console= $('#client_console');
+		client.text_input= $('#client_command');
+		client.text_input_button= $('#client_command_send');
+		client.output_div= document.getElementById('client_output');
+		client.client_room_users= $('#client_room_users');
+
+		client.colors =
+		[
+			'rgba(180, 173, 173, 0.973)',
+			'#395fa4',
+			'#159904',
+			'rgba(128, 128, 128, 0.35)'
+		];
+		        
         
         //== Room functions 
-            client.socket.on('host.set_room_data', function(data)
-			{
-                client.send_cmd('set_room_data', data.data);
-				if (config.debug) client.log(data);
-            });		
-        if (config.debug){
-			client.socket.on('room.data', function(data)
-			{
-				client.log(data);
-			});		
-			
-			client.socket.on('room.user_data', function(data)
-			{
-				client.log(data);
-			});
+		client.socket.on('host.set_room_data', function(data)
+		{
+			client.send_cmd('set_room_data', data.data);
+			if (client.config.debug) client.log(data);
+		});		
+		client.socket.on('room.info', function(data)
+		{				
+			var r_users = '';
+			for (var n in data.users){
+				var color=(n!==data.me)?client.colors[3]:client.colors[1];
+				r_users +="<div id=\"room_user_"+n+"\" style=\"color:"+color+";\">"+n+"</div>";					
+			}
+			client.client_room_users.html(r_users);
+		});		
+		client.socket.on('room.user_join', function(data)
+		{
+			client.client_room_users.append("<div id=\"room_user_"+data.user+"\" style=\"color:"+client.colors[3]+"\">"+data.user+"</div>");				
+		});			
+		client.socket.on('room.user_leave', function(data)
+		{
+			$("#room_user_"+data.user).remove();				
+		});
+		if (client.config.debug){
+		client.socket.on('room.data', function(data)
+		{
+			client.log(data);
+		});		
+		
+		client.socket.on('room.user_data', function(data)
+		{
+			client.log(data);
+		});
 
-			client.socket.on('room.user_join', function(data)
-			{
-				client.log(data);
-			});				
-			
-			client.socket.on('room.user_leave', function(data)
-			{
-				client.log(data);
-			});
-			client.socket.on('room.user_reconnect', function(data)
-			{
-				client.log(data);
-			});				
-			
-			client.socket.on('room.user_disconnect', function(data)
-			{
-				client.log(data);
-			});
-			client.socket.on('room.my_id', function(data)
-			{
-				client.log(data);
-            });		           
-            client.socket.on('room.info', function(data)
-			{
-				client.log(data);
-            });		
-            
-        //== END room functions */
-        }
-        client.socket.on('server.help', function(data)
+		client.socket.on('room.user_join', function(data)
+		{
+			client.log(data);
+		});				
+		
+		client.socket.on('room.user_leave', function(data)
+		{
+			client.log(data);
+		});
+		client.socket.on('room.user_reconnect', function(data)
+		{
+			client.log(data);
+		});				
+		
+		client.socket.on('room.user_disconnect', function(data)
+		{
+			client.log(data);
+		});
+		client.socket.on('room.my_id', function(data)
+		{
+			client.log(data);
+		});		           
+		client.socket.on('room.info', function(data)
+		{
+			client.log(data);
+		});		
+		
+		//== END room functions */
+		}
+		client.socket.on('server.help', function(data)
 		{		
-            var msg="";	
-            for (var n in data){
-                msg +="<a class='do_cmd' style='cursor:pointer;color:"+client.colors[2]+";'>/"+data[n]+" </a> "
-            }
-            client.log(msg);
-            $('.do_cmd').on('click',function(){
-                client.text_input.val($(this).html());
-                client.text_input.focus();
+			var msg="";	
+			for (var n in data){
+				msg +="<a class='do_cmd' style='cursor:pointer;color:"+client.colors[2]+";'>/"+data[n]+" </a> "
+			}
+			client.log(msg);
+			$('.do_cmd').on('click',function(){
+				client.text_input.val($(this).html());
+				client.text_input.focus();
 
-            });
+			});
 		});
 		client.socket.on('room.msg', function(data)
 		{
@@ -113,7 +138,7 @@ define(function(require) {
 		client.socket.on('connect', function(data)
 		{
 			client.chat_id = '<span style="color:#2c487e;">[' + client.socket.id + '] </span>';
-			client.log('[connected][' + server + ']  [id][' + client.socket.id + ']', 0);		
+			client.log('[connected][' + client.server + ']  [id][' + client.socket.id + ']', 0);		
 		});
 
 		client.socket.on('disconnect', function(data)
@@ -124,10 +149,10 @@ define(function(require) {
 		//===>DOM  functions
 		client.log = function(txt, color)
 		{
-			if (!color) color = 0;
+			if (typeof color === 'undefined') color = 0;
 			if (!client.output_div)
 			{
-				if (client_loader.mode === 1)
+				if (client.config.mode === 1)
 				{
 					console.log(txt);
 				}
@@ -217,6 +242,7 @@ define(function(require) {
 			}
 
 			client.text_input.val('');
+			
 		};
 
 		client.text_input.keypress(function(e)
@@ -247,28 +273,18 @@ define(function(require) {
 			}
 		});	
 
-		if (client_loader.mode === 3)
+		if (client.config.mode === 3)
 		{
 			setTimeout(client.show, 200);
 		}
 		return client;
 	};
 
-	client_loader.load_ui = function(call_back)
-	{		
-        var network_ui = require('text!assets/network_ui.html');
-        $('body').append(network_ui);	
-        return 	client_loader.init_client();
-	};
 
-
-    if (client_loader.mode >= 2)
-    {
-        return client_loader.load_ui();
-    }
-    else
-    {        
-        return client_loader.init_client();			
-    }
+	return {
+		start:client_loader.init_client
+	}
+	
+    
 
 });
