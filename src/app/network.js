@@ -143,7 +143,7 @@ define(function(require) {
 
 		client.socket.on('disconnect', function(data)
 		{
-			client.log('[disconnected][' + server + ']', 0);
+			client.log('[disconnected][' + client.server + ']', 0);
 		});
 
 		//===>DOM  functions
