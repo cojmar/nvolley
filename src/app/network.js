@@ -51,17 +51,36 @@ define(function(require) {
 			client.send_cmd('set_room_data', data.data);
 			if (client.config.debug) client.log(data);
 		});		
+		var host = false;
+		var me = false;
 		client.socket.on('room.info', function(data)
 		{				
 			var r_users = '';
+			me = data.me;
 			for (var n in data.users){
-				var color=(n!==data.me)?client.colors[3]:client.colors[1];
+				var color=(n!==data.me)?client.colors[3]:client.colors[1];				
+				if (n===data.host){
+					 color = client.colors[2];
+					 host = data.host;
+				}
+					
+				
 				r_users +="<div id=\"room_user_"+n+"\" style=\"color:"+color+";\">"+n+"</div>";					
 			}
 			client.text_input.attr("placeholder", ' You are Typing as "'+data.me+'" on "' +data.name+ '"');
 			client.client_room_users.html(r_users);
 			client.client_room.html(data.name);
-		});		
+		});
+		client.socket.on('room.host', function(data)
+		{	
+			if (host){
+				var color=(host!==me)?client.colors[3]:client.colors[1];
+				 $('#room_user_'+host).css('color',color);
+				 host = data;
+			} else host = data;
+			$('#room_user_'+host).css('color',client.colors[2]);			
+			
+		});
 		client.socket.on('room.user_join', function(data)
 		{	
 			client.client_room_users.append("<div id=\"room_user_"+data.user+"\" style=\"color:"+client.colors[3]+"\">"+data.user+"</div>");				
