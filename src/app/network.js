@@ -84,13 +84,7 @@ define(function(require) {
 		{
 			$("#room_user_"+data.user).remove();				
 		});
-		if (client.config.debug){
-		client.socket.on('host.set_room_data', function(data)
-		{
-			client.log('host.set_room_data',3);
-			client.send_cmd('set_room_data', data.data);
-			if (client.config.debug) client.log(data,3);
-		});		
+		if (client.config.debug){			
 		client.socket.on('room.data', function(data)
 		{
 			client.log('room.data',3);

@@ -2,7 +2,7 @@
     "network":{
         "servers":["https://ws.emupedia.net:4000","http://cojmar.zapto.org:3000"],
         "server":0,        
-        "mode":3,
+        "mode":2,
         "debug":false        
     }    
 }
