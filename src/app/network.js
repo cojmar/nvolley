@@ -24,6 +24,8 @@ define(function(require) {
 	};
 	client_loader.load_ui = function()	
 	{			
+		var host = false;
+		var me = false;
 		var $ = require('jquery');    
         var network_ui = require('text!assets/network_ui.html');
         $('body').append(network_ui);
@@ -45,14 +47,7 @@ define(function(require) {
 		];
 		        
         
-        //== Room functions 
-		client.socket.on('host.set_room_data', function(data)
-		{
-			client.send_cmd('set_room_data', data.data);
-			if (client.config.debug) client.log(data);
-		});		
-		var host = false;
-		var me = false;
+		//== Room functions 
 		client.socket.on('room.info', function(data)
 		{				
 			var r_users = '';
@@ -90,41 +85,55 @@ define(function(require) {
 			$("#room_user_"+data.user).remove();				
 		});
 		if (client.config.debug){
+		client.socket.on('host.set_room_data', function(data)
+		{
+			client.log('host.set_room_data',3);
+			client.send_cmd('set_room_data', data.data);
+			if (client.config.debug) client.log(data,3);
+		});		
 		client.socket.on('room.data', function(data)
 		{
-			client.log(data);
+			client.log('room.data',3);
+			client.log(data,3);
 		});		
 		
 		client.socket.on('room.user_data', function(data)
 		{
-			client.log(data);
+			client.log('room.user_data',3);
+			client.log(data,3);
 		});
 
 		client.socket.on('room.user_join', function(data)
 		{
-			client.log(data);
+			client.log('room.user_join',3);
+			client.log(data,3);
 		});				
 		
 		client.socket.on('room.user_leave', function(data)
 		{
-			client.log(data);
+			client.log('room.user_leave',3);
+			client.log(data,3);
 		});
 		client.socket.on('room.user_reconnect', function(data)
 		{
-			client.log(data);
+			client.log('room.user_reconnect',3);
+			client.log(data,3);
 		});				
 		
 		client.socket.on('room.user_disconnect', function(data)
 		{
-			client.log(data);
+			client.log('room.user_disconnect',3);
+			client.log(data,3);
 		});
-		client.socket.on('room.my_id', function(data)
+		client.socket.on('my.info', function(data)
 		{
-			client.log(data);
+			client.log('my.info',3);
+			client.log(data,3);
 		});		           
 		client.socket.on('room.info', function(data)
 		{
-			client.log(data);
+			client.log('room.info',3);
+			client.log(data,3);
 		});		
 		
 		//== END room functions */
