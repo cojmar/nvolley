@@ -8,7 +8,7 @@ define(function(require) {
     var $ = require('jquery');
     
     
-    var room = false;
+    
    
 
     function init_net_room(){
@@ -53,7 +53,7 @@ define(function(require) {
         net.socket.on('room.data',function(data){
             if (!net.room) return false;
             do_merge(net.room.data,data.data);
-            if (data.data.game && net.game && net.game.process_game_data) net.game.process_game_data(data.data.game);            
+            if (data.data.game && net.game && net.game.process_game_data) net.game.process_game_data(data.data.game);           
             log_room();
         });
         net.socket.on('room.host',function(host){            
@@ -67,7 +67,7 @@ define(function(require) {
 		{
             if (!net.room) return false;
             net.room.users[data.user] = data.data;
-            if(net.room.data.game){
+            if(net.room.data.game && net.room.i_am_host){
                 if(net.room.data.game.player1.user === false ){
                     net.send_cmd('set_room_data',{
                         game:{
@@ -93,7 +93,7 @@ define(function(require) {
 		{
             if (!net.room) return false;
             if (net.room.users[data.user]) delete net.room.users[data.user];
-            if(net.room.data.game){
+            if(net.room.data.game && net.room.i_am_host){
                 if(net.room.data.game.player1.user === data.user ){
                     net.send_cmd('set_room_data',{
                         game:{
@@ -146,45 +146,74 @@ define(function(require) {
                     }
                 });                
             }
+        });
+        net.socket.on('client.click', function(data)
+		{
+            if (!net.room) return false;
+            if (!net.room.data.game) return false;
             
-            
-        });    
+            if (data.user === net.room.data.game.player1.user || data.user === net.room.data.game.player2.user){
+                if (net.game.ball.getData('onPaddle'))
+                {
+                    net.send_cmd('set_room_data',{
+                        game:{
+                            ball:{
+                                Velocity:[-75, -300],
+                                onPaddle:false,
+                            }
+                        }                    
+                    });
+                }               
+            }      
+        });
 
+        net.socket.on('host.reset_level', function(data)
+		{
+            if(!net.room.i_am_host){
+                net.game.resetLevel();       
+            }
+
+        });
+        net.socket.on('host.reset_ball', function(data)
+		{
+            if(!net.room.i_am_host){
+                net.game.resetBall();
+            }
+
+        });
         return net.room;
     }
+
+
+    
     function init_game(){
         console.log('init_game');
         var game = {
 
             player1:{
-                user:Object.keys(net.room.users)[0] || false,
-                mouse:{
-                    x:0,
-                },
+                user:Object.keys(net.room.users)[0] || false,                
                 position:{
-                    x:400,
+                    x:200,
                     y:550
                 }
                 
             },
             player2:{
-                user:Object.keys(net.room.users)[1] || false,
-                mouse:{
-                    x:0,
-                },
+                user:Object.keys(net.room.users)[1] || false,                
                 position:{
-                    x:400,
+                    x:600,
                     y:550
                 }                
             },
             ball:{
-                x:100,
+                x:400,
                 y:480,
                 onPaddle:true,
                 Velocity:[0,0],
             },
         }
         net.send_cmd('set_room_data',{game:game});
+        start_game();
     }
 
     var my_game = new Phaser.Class({
@@ -229,7 +258,7 @@ define(function(require) {
             var net_player1 = net.room.data.game.player1;
             var net_player2 = net.room.data.game.player2;
             this.ball = this.physics.add.image(net_ball.x, net_ball.y, 'ball').setCollideWorldBounds(true).setBounce(1);
-            this.ball.setData('onPaddle', net_ball.onPaddle);
+            this.ball.setData('onPaddle', true);
             this.ball.setVelocity(...net_ball.Velocity);
     
             this.player1 = this.physics.add.image(net_player1.position.x, net_player1.position.y, 'player1').setImmovable();
@@ -248,38 +277,13 @@ define(function(require) {
             }, this);
 
             this.input.on('pointerup', function (pointer) {
-                if (this.ball.getData('onPaddle'))
-                {
-                    net.send_cmd('set_room_data',{
-                        game:{
-                            ball:{
-                                Velocity:[-75, -300],
-                                onPaddle:false,
-                            }
-                        }                    
-                    });
-                }
+                net.send_cmd('client.click',{
+                    x:Phaser.Math.Clamp(pointer.x, 52, 1748)                    
+                });
             }, this);
 
             this.process_game_data = function(data){
-                if (data.ball){
-                    
-                    if(typeof data.ball.onPaddle !=='undefined'){
-                        this.ball.setData('onPaddle', data.ball.onPaddle);
-                    }
-                    if (data.ball.Velocity){
-                        this.ball.setVelocity(...data.ball.Velocity);
-                    }
-                    if (!net.room.i_am_host){
-                     
-                        if(data.ball.x){
-                            this.ball.x = data.ball.x
-                        }
-                        if(data.ball.y){
-                            this.ball.y = data.ball.y
-                        }
-                    }
-                }
+       
 
                 if (data.player1){
                     if(data.player1.position){                        
@@ -298,11 +302,29 @@ define(function(require) {
                         this.player2.x = data.player2.position.x
                     }
                 }
-                
+                //if (net.room.i_am_host) return false;
+                if (data.ball){
+                    
+                    if(typeof data.ball.onPaddle !=='undefined'){
+                        this.ball.setData('onPaddle', data.ball.onPaddle);
+                    }
+                    if (data.ball.Velocity){
+                        this.ball.setVelocity(...data.ball.Velocity);
+                    }
+                    if (!net.room.i_am_host){
+                     
+                        if(data.ball.x){
+                            this.ball.x = data.ball.x
+                        }
+                        if(data.ball.y){
+                            this.ball.y = data.ball.y
+                        }
+                    }
+                }
                 
                 
             }      
-    
+            this.init_from_net();
           
             
         },
@@ -313,6 +335,7 @@ define(function(require) {
     
             if (this.bricks.countActive() === 0)
             {
+                if (net.room.i_am_host) net.send_cmd('host.reset_level');                
                 this.resetLevel();
             }
         },
@@ -320,18 +343,9 @@ define(function(require) {
         resetBall: function ()
         {
             this.ball.setVelocity(0);
-            this.ball.setPosition(this.player1.x, 480);
-            this.ball.setData('onPaddle', true);       
-            net.send_cmd('set_room_data',{
-                game:{
-                    ball:{
-                        Velocity:this.ball.body.Velocity,
-                        onPaddle:this.ball.getData('onPaddle'),
-                        x:this.ball.x,
-                        y:this.ball.y
-                    }
-                }                    
-            });
+            this.ball.setPosition(400, 480);
+            this.ball.setData('onPaddle', true);                 
+                      
         },
     
         resetLevel: function ()
@@ -370,33 +384,42 @@ define(function(require) {
         },
     
         update: function ()
-        {            
+        {   
+            if (!net.room.i_am_host) return false;
             if (this.ball.y > 600)
             {
+                if (net.room.i_am_host) net.send_cmd('host.reset_ball');
                 this.resetBall();
             } 
-
+            
             net.send_cmd('set_room_data',{
                 game:{
                     ball:{
-                        Velocity:this.ball.body.Velocity,
-                        onPaddle:this.ball.getData('onPaddle'),
+                        Velocity:this.ball.body.Velocity,                        
                         x:this.ball.x,
                         y:this.ball.y
                     }
                 }                    
             });
             
+        },
+        init_from_net: function (){
+            this.resetLevel();
+            let game = net.room.data.game;
+            if (!game) return false;
+            this.player1.setPosition(game.player1.position.x,game.player1.position.y);
+            this.player2.setPosition(game.player2.position.x,game.player2.position.y);
+            this.ball.setPosition(game.ball.x,game.ball.y);
+            
         }
     
     });
-    var game_started = false;
+    var game = false;
     function start_game(){
-        if (game_started){
-                if (net.room.data.game && net.game && net.game.process_game_data) net.game.process_game_data(net.room.data.game);            
-             return false;
-        }
-        game_started = true;
+        if (game){
+            game.scene.scenes[0].init_from_net();            
+            return false;
+        }        
         var config = {
             type: Phaser.WEBGL,
             backgroundColor: '#2a2a55',
@@ -416,7 +439,7 @@ define(function(require) {
                 height: 600
             },
         };
-        new Phaser.Game(config);    
+        game = new Phaser.Game(config);    
     }
     
     var game_assets = [];
