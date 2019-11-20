@@ -306,8 +306,7 @@ define(function(require) {
                     if(data.player2.position){
                         this.player2.x = data.player2.position.x
                     }
-                }
-                //if (net.room.i_am_host) return false;
+                }                
                 if (data.ball){
                     
                     if(typeof data.ball.onPaddle !=='undefined'){
@@ -339,23 +338,31 @@ define(function(require) {
             brick.disableBody(true, true);
             
             if (net.room.i_am_host){
-                var broken_bricks = net.room.data.game.broken_bricks;
+                var broken_bricks =  JSON.parse(JSON.stringify(net.room.data.game.broken_bricks));
                 if(broken_bricks.indexOf(brick.brick_index)===-1){
                     broken_bricks.push(brick.brick_index);
                 }
+                console.log( JSON.stringify(
+
+                    {
+                        game:{
+                            broken_bricks:broken_bricks
+                        }  
+                    }
+                ) )
                 net.send_cmd('set_room_data',{
                     game:{
                         broken_bricks:broken_bricks
                     }  
                 });                
             }
-
+                
             if (this.bricks.countActive() === 0)
             {
                 if (net.room.i_am_host){
                     net.send_cmd('set_room_data',{
                         game:{
-                            broken_bricks:[]
+                            broken_bricks:[-1]
                         }  
                     });
                     net.send_cmd('host.reset_level');                
