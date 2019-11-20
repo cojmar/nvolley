@@ -187,7 +187,7 @@ define(function(require) {
 
     
     function init_game(){
-        console.log('init_game');
+        //console.log('init_game');
         var game = {
 
             player1:{
@@ -211,6 +211,7 @@ define(function(require) {
                 onPaddle:true,
                 Velocity:[0,0],
             },
+            broken_bricks:[],
         }
         net.send_cmd('set_room_data',{game:game});
         start_game();
@@ -254,6 +255,12 @@ define(function(require) {
                 frameQuantity: 10,
                 gridAlign: { width: 10, height: 6, cellWidth: 64, cellHeight: 32, x: 112, y: 100 }
             });
+
+            var my_bricks = this.bricks.getChildren();
+            for (var n in my_bricks){
+                my_bricks[n].brick_index = n;                
+            }
+
             var net_ball = net.room.data.game.ball;   
             var net_player1 = net.room.data.game.player1;
             var net_player2 = net.room.data.game.player2;
@@ -282,9 +289,7 @@ define(function(require) {
                 });
             }, this);
 
-            this.process_game_data = function(data){
-       
-
+            this.process_game_data = function(data){     
                 if (data.player1){
                     if(data.player1.position){                        
                         this.player1.x = data.player1.position.x;
@@ -332,10 +337,29 @@ define(function(require) {
         hitBrick: function (ball, brick)
         {
             brick.disableBody(true, true);
-    
+            
+            if (net.room.i_am_host){
+                var broken_bricks = net.room.data.game.broken_bricks;
+                if(broken_bricks.indexOf(brick.brick_index)===-1){
+                    broken_bricks.push(brick.brick_index);
+                }
+                net.send_cmd('set_room_data',{
+                    game:{
+                        broken_bricks:broken_bricks
+                    }  
+                });                
+            }
+
             if (this.bricks.countActive() === 0)
             {
-                if (net.room.i_am_host) net.send_cmd('host.reset_level');                
+                if (net.room.i_am_host){
+                    net.send_cmd('set_room_data',{
+                        game:{
+                            broken_bricks:[]
+                        }  
+                    });
+                    net.send_cmd('host.reset_level');                
+                }
                 this.resetLevel();
             }
         },
@@ -343,65 +367,86 @@ define(function(require) {
         resetBall: function ()
         {
             this.ball.setVelocity(0);
-            this.ball.setPosition(400, 480);
+            this.ball.setPosition(this.ball.x, 480);
             this.ball.setData('onPaddle', true);                 
-                      
+            if (net.room.i_am_host) net.send_cmd('set_room_data',{
+                game:{
+                    ball:{
+                        Velocity:[0,0],
+                        onPaddle:this.ball.getData('onPaddle'),
+                        x:this.ball.x,
+                        y:this.ball.y
+                    }
+                }                    
+            });            
         },
     
         resetLevel: function ()
         {
-            this.resetBall();
-    
-            this.bricks.children.each(function (brick) {
-    
-                brick.enableBody(false, 0, 0, true, true);
-    
+            this.resetBall();    
+            this.bricks.children.each(function (brick) {    
+                brick.enableBody(false, 0, 0, true, true);    
             });
         },
     
         hitPaddle: function (ball, paddle)
         {
             var diff = 0;
+            var vel = net.room.data.game.ball.Velocity;            
     
             if (ball.x < paddle.x)
             {
                 //  Ball is on the left-hand side of the paddle
                 diff = paddle.x - ball.x;
                 ball.setVelocityX(-10 * diff);
+                vel[0] = -10 * diff;
             }
             else if (ball.x > paddle.x)
             {
                 //  Ball is on the right-hand side of the paddle
                 diff = ball.x -paddle.x;
                 ball.setVelocityX(10 * diff);
+                vel[0] = 10 * diff;
             }
             else
             {
                 //  Ball is perfectly in the middle
                 //  Add a little random X to stop it bouncing straight up!
-                ball.setVelocityX(2 + Math.random() * 8);
-            }
-        },
-    
-        update: function ()
-        {   
+                let new_v = 2 + Math.random() * 8;
+                ball.setVelocityX(new_v);
+                vel[0] = new_v;
+            }    
             if (!net.room.i_am_host) return false;
-            if (this.ball.y > 600)
-            {
-                if (net.room.i_am_host) net.send_cmd('host.reset_ball');
-                this.resetBall();
-            } 
-            
             net.send_cmd('set_room_data',{
                 game:{
                     ball:{
-                        Velocity:this.ball.body.Velocity,                        
+                        Velocity:vel                        
+                    }
+                }                    
+            });
+        },
+        update_ball_on_net: function(){            
+            if (!net.room.i_am_host) return false;
+            net.send_cmd('set_room_data',{
+                game:{
+                    ball:{                        
                         x:this.ball.x,
                         y:this.ball.y
                     }
                 }                    
             });
-            
+        },    
+        update: function ()
+        {   
+            if (!net.room.i_am_host) return false;
+            if (this.ball.y > 600)
+            {
+                if (net.room.i_am_host){                     
+                    net.send_cmd('host.reset_ball');
+                }
+                this.resetBall();
+            }             
+            this.update_ball_on_net();         
         },
         init_from_net: function (){
             this.resetLevel();
@@ -410,7 +455,14 @@ define(function(require) {
             this.player1.setPosition(game.player1.position.x,game.player1.position.y);
             this.player2.setPosition(game.player2.position.x,game.player2.position.y);
             this.ball.setPosition(game.ball.x,game.ball.y);
-            
+
+            var my_bricks = this.bricks.getChildren();
+            for (var n in my_bricks){
+                if (game.broken_bricks.indexOf(n)!==-1){
+                    var brick = my_bricks[n];
+                    brick.disableBody(true, true);
+                }                       
+            }
         }
     
     });
