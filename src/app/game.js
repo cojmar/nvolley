@@ -6,28 +6,24 @@ define(function(require) {
     var Fingerprint = require('fingerprint');
     var fingerprint = new Fingerprint().get();
     var $ = require('jquery');
-    
-    
-    
-   
-
     function init_net_room(){
         function do_merge(data1,data2){        
             if (typeof data1 !=='object' || typeof data2 !=='object'){
                 data1 = data2;
-                return data1;
+                return true;
             }
             for(var n in data2){
                 if (!data1[n]){
                     data1[n] = data2[n];
                 }else{
-                    if (typeof data1[n] ==='object'){
+                    if (typeof data1[n] ==='object' && typeof data2[n] ==='object'){
                         do_merge(data1[n],data2[n]);                    
                     }else{
                         data1[n] = data2[n];
                     }
                 }            
             }
+            return true;
         }
         function log_room(){
             $(net.output_div).html('');
@@ -155,6 +151,7 @@ define(function(require) {
             if (data.user === net.room.data.game.player1.user || data.user === net.room.data.game.player2.user){
                 if (net.game.ball.getData('onPaddle'))
                 {
+                    net.game.ball.setVelocity(-75,-300);
                     net.send_cmd('set_room_data',{
                         game:{
                             ball:{
@@ -162,24 +159,31 @@ define(function(require) {
                                 onPaddle:false,
                             }
                         }                    
-                    });
+                    });                    
                 }               
             }      
         });
 
         net.socket.on('host.reset_level', function(data)
-		{
-            if(!net.room.i_am_host){
-                net.game.resetLevel();       
-            }
-
+		{            
+            net.game.resetLevel();      
         });
         net.socket.on('host.reset_ball', function(data)
-		{
-            if(!net.room.i_am_host){
-                net.game.resetBall();
+		{            
+            net.game.resetBall();
+        });
+        net.socket.on('host.remove_brick', function(data)
+		{            
+            if(net.room.i_am_host) return false;            
+            var my_bricks = net.game.bricks.getChildren();
+            for (var n in my_bricks){
+                if (n === data.data){
+                    var brick = my_bricks[n];
+                    brick.disableBody(true, true);
+                    break;
+                }                       
             }
-
+            
         });
         return net.room;
     }
@@ -266,7 +270,7 @@ define(function(require) {
             var net_player2 = net.room.data.game.player2;
             this.ball = this.physics.add.image(net_ball.x, net_ball.y, 'ball').setCollideWorldBounds(true).setBounce(1);
             this.ball.setData('onPaddle', true);
-            this.ball.setVelocity(...net_ball.Velocity);
+            this.ball.setVelocity(net_ball.Velocity[0],net_ball.Velocity[1]);
     
             this.player1 = this.physics.add.image(net_player1.position.x, net_player1.position.y, 'player1').setImmovable();
             this.player2 = this.physics.add.image(net_player2.position.x, net_player2.position.y, 'player2').setImmovable();
@@ -312,16 +316,26 @@ define(function(require) {
                     if(typeof data.ball.onPaddle !=='undefined'){
                         this.ball.setData('onPaddle', data.ball.onPaddle);
                     }
-                    if (data.ball.Velocity){
-                        this.ball.setVelocity(...data.ball.Velocity);
-                    }
+                    
                     if (!net.room.i_am_host){
-                     
+                        if (data.ball.Velocity){
+                            if (this.ball.body.velocity.x !== data.ball.Velocity[0]){
+                                this.ball.setVelocityX(data.ball.Velocity[0]);
+                            }
+                            if (this.ball.body.velocity.y !== data.ball.Velocity[1]){
+                                this.ball.setVelocityY(data.ball.Velocity[1]);
+                            } 
+                            //this.ball.setVelocity(data.ball.Velocity[0],data.ball.Velocity[1]);
+                        }                        
                         if(data.ball.x){
-                            this.ball.x = data.ball.x
+                            var sync_x = Math.round(this.ball.x) - Math.round(data.ball.x);
+                            if (sync_x < 0 ) sync_x = sync_x*-1;
+                            if (sync_x >=20) this.ball.x = data.ball.x;
                         }
                         if(data.ball.y){
-                            this.ball.y = data.ball.y
+                            var sync_y = Math.round(this.ball.y) - Math.round(data.ball.y);
+                            if (sync_y < 0 ) sync_y = sync_y*-1;
+                            if (sync_y >=20) this.ball.y = data.ball.y;
                         }
                     }
                 }
@@ -335,26 +349,20 @@ define(function(require) {
     
         hitBrick: function (ball, brick)
         {
+            if (!net.room.i_am_host) return false;
             brick.disableBody(true, true);
             
             if (net.room.i_am_host){
                 var broken_bricks =  JSON.parse(JSON.stringify(net.room.data.game.broken_bricks));
                 if(broken_bricks.indexOf(brick.brick_index)===-1){
                     broken_bricks.push(brick.brick_index);
-                }
-                console.log( JSON.stringify(
-
-                    {
-                        game:{
-                            broken_bricks:broken_bricks
-                        }  
-                    }
-                ) )
+                }               
                 net.send_cmd('set_room_data',{
                     game:{
                         broken_bricks:broken_bricks
                     }  
-                });                
+                });
+                net.send_cmd('host.remove_brick',brick.brick_index);                     
             }
                 
             if (this.bricks.countActive() === 0)
@@ -362,12 +370,16 @@ define(function(require) {
                 if (net.room.i_am_host){
                     net.send_cmd('set_room_data',{
                         game:{
-                            broken_bricks:[-1]
+                            broken_bricks:false
+                        }  
+                    });
+                    net.send_cmd('set_room_data',{
+                        game:{
+                            broken_bricks:[]
                         }  
                     });
                     net.send_cmd('host.reset_level');                
-                }
-                this.resetLevel();
+                }                
             }
         },
     
@@ -375,17 +387,7 @@ define(function(require) {
         {
             this.ball.setVelocity(0);
             this.ball.setPosition(this.ball.x, 480);
-            this.ball.setData('onPaddle', true);                 
-            if (net.room.i_am_host) net.send_cmd('set_room_data',{
-                game:{
-                    ball:{
-                        Velocity:[0,0],
-                        onPaddle:this.ball.getData('onPaddle'),
-                        x:this.ball.x,
-                        y:this.ball.y
-                    }
-                }                    
-            });            
+            this.ball.setData('onPaddle', true);
         },
     
         resetLevel: function ()
@@ -398,70 +400,71 @@ define(function(require) {
     
         hitPaddle: function (ball, paddle)
         {
-            var diff = 0;
-            var vel = net.room.data.game.ball.Velocity;            
+            if (!net.room.i_am_host) return false;
+            var diff = 0;                    
     
             if (ball.x < paddle.x)
             {
                 //  Ball is on the left-hand side of the paddle
                 diff = paddle.x - ball.x;
-                ball.setVelocityX(-10 * diff);
-                vel[0] = -10 * diff;
+                ball.setVelocityX(-10 * diff);                
             }
             else if (ball.x > paddle.x)
             {
                 //  Ball is on the right-hand side of the paddle
                 diff = ball.x -paddle.x;
-                ball.setVelocityX(10 * diff);
-                vel[0] = 10 * diff;
+                ball.setVelocityX(10 * diff);                
             }
             else
             {
                 //  Ball is perfectly in the middle
                 //  Add a little random X to stop it bouncing straight up!
-                let new_v = 2 + Math.random() * 8;
-                ball.setVelocityX(new_v);
-                vel[0] = new_v;
+                var new_v = 2 + Math.random() * 8;
+                ball.setVelocityX(new_v);                
             }    
+           
+        },
+        update_ball_velocity_on_net: function(){            
             if (!net.room.i_am_host) return false;
             net.send_cmd('set_room_data',{
                 game:{
-                    ball:{
-                        Velocity:vel                        
+                    ball:{                                                
+                        Velocity:[this.ball.body.velocity.x,this.ball.body.velocity.y]
                     }
                 }                    
             });
-        },
+        },    
         update_ball_on_net: function(){            
             if (!net.room.i_am_host) return false;
             net.send_cmd('set_room_data',{
                 game:{
                     ball:{                        
                         x:this.ball.x,
-                        y:this.ball.y
+                        y:this.ball.y                        
                     }
                 }                    
             });
+            this.update_ball_velocity_on_net();
         },    
         update: function ()
         {   
             if (!net.room.i_am_host) return false;
-            if (this.ball.y > 600)
+            if (this.ball.y > 640)
             {
-                if (net.room.i_am_host){                     
-                    net.send_cmd('host.reset_ball');
-                }
-                this.resetBall();
-            }             
-            this.update_ball_on_net();         
+                net.send_cmd('host.reset_ball');
+            }
+            else{             
+                this.update_ball_on_net();                         
+            }
         },
         init_from_net: function (){
             this.resetLevel();
-            let game = net.room.data.game;
+            var game = net.room.data.game;
             if (!game) return false;
             this.player1.setPosition(game.player1.position.x,game.player1.position.y);
             this.player2.setPosition(game.player2.position.x,game.player2.position.y);
             this.ball.setPosition(game.ball.x,game.ball.y);
+            this.ball.setVelocity(game.ball.Velocity[0],game.ball.Velocity[1]);
 
             var my_bricks = this.bricks.getChildren();
             for (var n in my_bricks){
