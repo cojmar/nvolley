@@ -9,7 +9,9 @@ requirejs.config({
         "*": {
             "text": "require-text",
             "css":"require-css",
-            "json":"require-json"
+            "json":"require-json",
+            "bin":"require-bin",
+            "mp3":"require-mp3"
         }
     },
     paths: {

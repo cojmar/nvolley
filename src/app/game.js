@@ -56,7 +56,14 @@ define(function(require) {
             if (!net.room) return false;
             net.room.host = host;
             net.room.i_am_host = (net.room.host === net.room.me)?true:false;
-            if (!net.room.data.game && net.room.i_am_host) init_game();            
+            if (net.room.i_am_host){
+                if (!net.room.data.game){
+                     init_game();
+                }
+                else{
+                     net.game.ball.setVelocity(net.room.data.game.ball.Velocity[0],net.room.data.game.ball.Velocity[1]);
+                }
+            }
             log_room();
         });
         net.socket.on('room.user_join', function(data)
@@ -270,7 +277,7 @@ define(function(require) {
             var net_player2 = net.room.data.game.player2;
             this.ball = this.physics.add.image(net_ball.x, net_ball.y, 'ball').setCollideWorldBounds(true).setBounce(1);
             this.ball.setData('onPaddle', true);
-            this.ball.setVelocity(net_ball.Velocity[0],net_ball.Velocity[1]);
+            this.ball.setVelocity(0,0);
     
             this.player1 = this.physics.add.image(net_player1.position.x, net_player1.position.y, 'player1').setImmovable();
             this.player2 = this.physics.add.image(net_player2.position.x, net_player2.position.y, 'player2').setImmovable();
@@ -320,22 +327,18 @@ define(function(require) {
                     if (!net.room.i_am_host){
                         if (data.ball.Velocity){
                             if (this.ball.body.velocity.x !== data.ball.Velocity[0]){
-                                this.ball.setVelocityX(data.ball.Velocity[0]);
+                                //this.ball.setVelocityX(data.ball.Velocity[0]);
                             }
                             if (this.ball.body.velocity.y !== data.ball.Velocity[1]){
-                                this.ball.setVelocityY(data.ball.Velocity[1]);
+                                //this.ball.setVelocityY(data.ball.Velocity[1]);
                             } 
                             //this.ball.setVelocity(data.ball.Velocity[0],data.ball.Velocity[1]);
                         }                        
                         if(data.ball.x){
-                            var sync_x = Math.round(this.ball.x) - Math.round(data.ball.x);
-                            if (sync_x < 0 ) sync_x = sync_x*-1;
-                            if (sync_x >=20) this.ball.x = data.ball.x;
+                          this.ball.x = data.ball.x;
                         }
                         if(data.ball.y){
-                            var sync_y = Math.round(this.ball.y) - Math.round(data.ball.y);
-                            if (sync_y < 0 ) sync_y = sync_y*-1;
-                            if (sync_y >=20) this.ball.y = data.ball.y;
+                            this.ball.y = data.ball.y;
                         }
                     }
                 }
@@ -426,11 +429,12 @@ define(function(require) {
         },       
         update_ball_on_net: function(){            
             if (!net.room.i_am_host) return false;
+            if(!net.room.data.game) return false;
             var game = JSON.parse(JSON.stringify(net.room.data.game));
             var update = {};
             var local_ball = {
-                x:Math.round(this.ball.x),
-                y:Math.round(this.ball.y),
+                x: parseFloat(this.ball.x.toFixed(2)),
+                y:parseFloat(this.ball.y.toFixed(2)),
                 Velocity:[Math.round(this.ball.body.velocity.x),Math.round(this.ball.body.velocity.y)]
             }
             for (var n in local_ball){
@@ -475,7 +479,11 @@ define(function(require) {
             this.player1.setPosition(game.player1.position.x,game.player1.position.y);
             this.player2.setPosition(game.player2.position.x,game.player2.position.y);
             this.ball.setPosition(game.ball.x,game.ball.y);
-            this.ball.setVelocity(game.ball.Velocity[0],game.ball.Velocity[1]);
+            if (net.room.i_am_host){
+                this.ball.setVelocity(game.ball.Velocity[0],game.ball.Velocity[1]);
+            }else{
+                this.ball.setVelocity(0,0);
+            }            
 
             var my_bricks = this.bricks.getChildren();
             for (var n in my_bricks){
