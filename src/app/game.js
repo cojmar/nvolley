@@ -423,28 +423,39 @@ define(function(require) {
                 ball.setVelocityX(new_v);                
             }    
            
-        },
-        update_ball_velocity_on_net: function(){            
-            if (!net.room.i_am_host) return false;
-            net.send_cmd('set_room_data',{
-                game:{
-                    ball:{                                                
-                        Velocity:[this.ball.body.velocity.x,this.ball.body.velocity.y]
-                    }
-                }                    
-            });
-        },    
+        },       
         update_ball_on_net: function(){            
             if (!net.room.i_am_host) return false;
-            net.send_cmd('set_room_data',{
-                game:{
-                    ball:{                        
-                        x:this.ball.x,
-                        y:this.ball.y                        
+            var game = JSON.parse(JSON.stringify(net.room.data.game));
+            var update = {};
+            var local_ball = {
+                x:Math.round(this.ball.x),
+                y:Math.round(this.ball.y),
+                Velocity:[Math.round(this.ball.body.velocity.x),Math.round(this.ball.body.velocity.y)]
+            }
+            for (var n in local_ball){
+                if (typeof local_ball[n] !=='object'){
+                    if(game.ball[n] != local_ball[n]){
+                        update[n] = local_ball[n];    
                     }
-                }                    
-            });
-            this.update_ball_velocity_on_net();
+                }
+                else{
+                    if (JSON.stringify(game.ball[n]) !== JSON.stringify(local_ball[n])){
+                        update[n] = local_ball[n];                     
+                    }
+                    
+                }                
+            }
+            
+            if (Object.keys(update).length>0)
+            {            
+                //console.log(JSON.stringify(update,null,2));
+                net.send_cmd('set_room_data',{
+                    game:{
+                        ball:update
+                    }                    
+                });
+            }            
         },    
         update: function ()
         {   
