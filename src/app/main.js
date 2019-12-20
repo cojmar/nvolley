@@ -37,7 +37,11 @@ define(function(require) {
             {
                 "name":"purple1",
                 "svg":require('text!assets/svg/brick.svg')
-            },            
+            },       
+            {
+                "name":"net",
+                "svg":require('text!assets/svg/net.svg')
+            },       
         ]
     );
     /*

@@ -132,6 +132,7 @@ define(function(require) {
             if (!net.room.data.game) return false;
             
             if (data.user === net.room.data.game.player1.user){
+                if (data.data.x > 375) data.data.x = 375;
                 net.send_cmd('set_room_data',{
                     game:{
                         player1:{
@@ -141,6 +142,7 @@ define(function(require) {
                 });                
             }
             if (data.user === net.room.data.game.player2.user){
+                if (data.data.x < 445) data.data.x = 445;
                 net.send_cmd('set_room_data',{
                     game:{
                         player2:{
@@ -281,12 +283,17 @@ define(function(require) {
     
             this.player1 = this.physics.add.image(net_player1.position.x, net_player1.position.y, 'player1').setImmovable();
             this.player2 = this.physics.add.image(net_player2.position.x, net_player2.position.y, 'player2').setImmovable();
-    
+          
+
+            this.middle_net = this.physics.add.image(410, net_player2.position.y, 'net').setImmovable();
+
             //  Our colliders
             this.physics.add.collider(this.ball, this.bricks, this.hitBrick, null, this);
             this.physics.add.collider(this.ball, this.player1, this.hitPaddle, null, this);
             this.physics.add.collider(this.ball, this.player2, this.hitPaddle, null, this);
-    
+            this.physics.add.overlap(this.ball, this.middle_net, this.hitPaddle, null, this);        
+
+         
             //  Input events
             this.input.on('pointermove', function (pointer) {
                 net.send_cmd('client.mouse',{
