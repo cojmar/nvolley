@@ -45,6 +45,13 @@ define(function(require) {
         ]
     );
     /*
+    let elemDiv = document.createElement('div');
+    let id = 'd5wZqMCssxw';
+    elemDiv.style.display = 'none';
+    elemDiv.innerHTML = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${id}?controls=0&autoplay=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    document.body.appendChild(elemDiv);
+    */
+    /*
     var mp3 = require('bin!assets/music.mp3');
     var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function play_mp3(){        

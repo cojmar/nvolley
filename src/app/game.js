@@ -278,6 +278,7 @@ define(function(require) {
             var net_player1 = net.room.data.game.player1;
             var net_player2 = net.room.data.game.player2;
             this.ball = this.physics.add.image(net_ball.x, net_ball.y, 'ball').setCollideWorldBounds(true).setBounce(1);
+            //this.ball.setCircle(25);
             this.ball.setData('onPaddle', true);
             this.ball.setVelocity(0,0);
     
@@ -305,58 +306,56 @@ define(function(require) {
                 net.send_cmd('client.click',{
                     x:Phaser.Math.Clamp(pointer.x, 52, 1748)                    
                 });
-            }, this);
-
-            this.process_game_data = function(data){     
-                if (data.player1){
-                    if(data.player1.position){                        
-                        this.player1.x = data.player1.position.x;
-                        //  Keep the paddle within the game    
-                        /*         
-                        if (this.ball.getData('onPaddle'))
-                        {
-                            this.ball.x = this.player1.x;
-                        }
-                        */
-                    }
-                }
-                if (data.player2){
-                    if(data.player2.position){
-                        this.player2.x = data.player2.position.x
-                    }
-                }                
-                if (data.ball){
-                    
-                    if(typeof data.ball.onPaddle !=='undefined'){
-                        this.ball.setData('onPaddle', data.ball.onPaddle);
-                    }
-                    
-                    if (!net.room.i_am_host){
-                        if (data.ball.Velocity){
-                            if (this.ball.body.velocity.x !== data.ball.Velocity[0]){
-                                //this.ball.setVelocityX(data.ball.Velocity[0]);
-                            }
-                            if (this.ball.body.velocity.y !== data.ball.Velocity[1]){
-                                //this.ball.setVelocityY(data.ball.Velocity[1]);
-                            } 
-                            //this.ball.setVelocity(data.ball.Velocity[0],data.ball.Velocity[1]);
-                        }                        
-                        if(data.ball.x){
-                          this.ball.x = data.ball.x;
-                        }
-                        if(data.ball.y){
-                            this.ball.y = data.ball.y;
-                        }
-                    }
-                }
-                
-                
-            }      
+            }, this);               
             this.init_from_net();
           
             
         },
-    
+        process_game_data:function(data){     
+            if (data.player1){
+                if(data.player1.position){                        
+                    this.player1.x = data.player1.position.x;
+                    //  Keep the paddle within the game    
+                    /*         
+                    if (this.ball.getData('onPaddle'))
+                    {
+                        this.ball.x = this.player1.x;
+                    }
+                    */
+                }
+            }
+            if (data.player2){
+                if(data.player2.position){
+                    this.player2.x = data.player2.position.x
+                }
+            }                
+            if (data.ball){
+                
+                if(typeof data.ball.onPaddle !=='undefined'){
+                    this.ball.setData('onPaddle', data.ball.onPaddle);
+                }
+                
+                if (!net.room.i_am_host){
+                    if (data.ball.Velocity){
+                        if (this.ball.body.velocity.x !== data.ball.Velocity[0]){
+                            //this.ball.setVelocityX(data.ball.Velocity[0]);
+                        }
+                        if (this.ball.body.velocity.y !== data.ball.Velocity[1]){
+                            //this.ball.setVelocityY(data.ball.Velocity[1]);
+                        } 
+                        //this.ball.setVelocity(data.ball.Velocity[0],data.ball.Velocity[1]);
+                    }                        
+                    if(data.ball.x){
+                      this.ball.x = data.ball.x;
+                    }
+                    if(data.ball.y){
+                        this.ball.y = data.ball.y;
+                    }
+                }
+            }
+            
+            
+        },
         hitBrick: function (ball, brick)
         {
             if (!net.room.i_am_host) return false;
@@ -502,6 +501,9 @@ define(function(require) {
         }
     
     });
+
+    var menu = require('./scene/menu');
+
     var game = false;
     function start_game(){
         if (game){
@@ -517,7 +519,7 @@ define(function(require) {
             physics: {
                 default: 'arcade',
                 arcade: {
-                //  debug: true,                
+                  //debug: true,                
                 }
             },
             scale: {
