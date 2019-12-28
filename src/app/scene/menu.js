@@ -10,12 +10,19 @@ define(function(require) {
         }
         create(){                   
             this.net = Phaser.net;
-            if(this.scene.isVisible('my_game')){
+            setTimeout(()=>{
+                if(!this.scene.isVisible('my_game')){                
+                    this.net.show();
+                }
+            },200);
+            if(this.scene.isVisible('my_game')){                
                 this.scene.setVisible(false,'my_game');                  
-            }else{
-                if(this.net.room.type!=='lobby') this.show_game();
+            }else{                
+                this.show_game();
             }
-            if(this.net.room.type==='lobby'){
+            
+            if(this.net.room.type==='lobby'){                
+                
                 this.buttons = [
                     'Join public game',
                     'Host private game',
@@ -61,6 +68,7 @@ define(function(require) {
                 menu_but.setColor('#7a7ac7');
             });
             button.setColor('#fff');
+            if (['Join private game','Host private game'].indexOf(button.text)!==-1) button.setColor('#232344')
             
             
             this.hoverSprite.y = button.y + 15;
@@ -79,10 +87,15 @@ define(function(require) {
                 case 'Join public game':
                     this.net.send_cmd('join', 'Volley Game 1');  
                 break;
+                case 'Join private game':
+                    button.setColor('#232344'); 
+                break;
+                
             }
         }
         show_game(){            
             if(this.net.room.type ==='lobby') return false;
+            this.net.hide();
             this.scene.setVisible(true,'my_game');
             this.scene.stop();            
         }

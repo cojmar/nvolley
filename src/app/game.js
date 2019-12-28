@@ -233,6 +233,7 @@ define(function(require) {
             }else{
                 net.game.scene.stop('menu');
                 net.game.scene.setVisible(true,'my_game');
+                net.hide();
             }
             return false;
         }        
@@ -257,9 +258,11 @@ define(function(require) {
         };
         game = new Phaser.Game(config);           
         if(!show_menu){
+            
             setTimeout(()=>{
                 net.game.scene.stop('menu');
-                net.game.scene.setVisible(true,'my_game');                    
+                net.game.scene.setVisible(true,'my_game');   
+                net.hide();                 
             },100);
         }
 
