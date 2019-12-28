@@ -26,7 +26,8 @@ define(function(require) {
                 this.buttons = [
                     'Join public game',
                     'Host private game',
-                    'Join private game'
+                    'Game rules',
+                    'Credits'
                 ];
             }else{
                 this.buttons = [
@@ -36,7 +37,24 @@ define(function(require) {
             }
             this.active_button = 0;
             this.hoverSprite = this.physics.add.image(100, 100, 'ball'); 
-            let start_y = 75;            
+            this.physics.add.image(550, 130, 'player1').scale = 1.2; 
+            this.physics.add.image(650, 130, 'player2').scale = 1.5; 
+            
+            this.add.text(535, 40, 'Nvolley', 
+            { 
+                fontFamily: '"Roboto Condensed"',
+                fontSize:"40px",
+                color:"#9e00af"
+            });
+            this.add.text(538, 77, 'Beta version', 
+            { 
+                fontFamily: '"Roboto Condensed"',
+                fontSize:"10px",
+                color:"#4AA8A8"
+            });
+
+
+            let start_y = 30;            
             for (var but_index in this.buttons){
                 let value = this.buttons[but_index];
                 let button = this.add.text(140, start_y, value, 
