@@ -67,6 +67,9 @@ define(function(require) {
             this.input.keyboard.on('keyup-' + 'ESC',  (event)=> {                
                 this.show_menu();
             });
+            this.input.keyboard.on('keyup-' + 'ENTER',  (event)=> {                
+                this.net.show();
+            });
             
             
         },
