@@ -43,7 +43,7 @@ define(function(require) {
                     { 
                         fontFamily: '"Roboto Condensed"',
                         fontSize:"30px",
-                        color:"#7a7ac7"
+                        color:"#395fa4"
                     });
                 button.index = but_index;
                 button.setInteractive();                
@@ -65,7 +65,7 @@ define(function(require) {
             this.active_button = index;
             let button = this.buttons[index];
             this.buttons.forEach((menu_but)=>{
-                menu_but.setColor('#7a7ac7');
+                menu_but.setColor('#395fa4');
             });
             button.setColor('#fff');
             if (['Join private game','Host private game'].indexOf(button.text)!==-1) button.setColor('#232344')
@@ -85,7 +85,7 @@ define(function(require) {
                     //this.scene.restart();
                 break;
                 case 'Join public game':
-                    this.net.send_cmd('join', 'Volley Game 1');  
+                    this.net.send_cmd('room_users', 'Volley Game - 1');  
                 break;
                 case 'Join private game':
                     button.setColor('#232344'); 

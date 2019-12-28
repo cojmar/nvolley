@@ -5,20 +5,21 @@
 			<div id="client_room_users" class="client_decoration"></div>
 	</div>
 	<div id ="client_input" class="client_decoration">
-		<input type="text" id="client_command">
+		<input type="text" id="client_command" spellcheck="false">
 		<button id="client_command_send">send</button>
 	</div>
 </div>
 <style>
 #client_command
 {
+	padding:2px;
 	height: 21px;
 	width: calc(100% - 48px);
     box-sizing: border-box;
-  	border: 1px rgba(128, 128, 128, 0.973) solid;
+  	border: 1px #0a0a13 solid;
   	outline: none;
-	background-color:  #232344;
-	color: rgba(180, 173, 173, 0.973);
+	background-color:  #2a2a4e;
+	color: #5570a3;
 }
 #client_command_send
 {
@@ -27,20 +28,24 @@
 	outline: none;
 	color: rgba(128, 128, 128, 0.35);
 	cursor: pointer;
-	color: rgba(128, 128, 128, 0.973);
-	border: 1px rgba(128, 128, 128, 0.973) solid;
+	color: #0a0a13;
+	border: 1px #0a0a13 solid;
 	background-color: #232344;
+}
+#client_command_send:hover{
+	color:#5570a3;
+	border: 1px #0a0a13 solid;
 }
 
 #client_command_send:active{
-	color:rgba(128, 128, 128, 0.35);
-	border: 1px rgba(128, 128, 128, 0.35) solid;
+	color:#0a0a13;
+	border: 1px #0a0a13 solid;
 }
 
 
 .client_decoration{
 	background-color: #232344;   
-	border: 1px rgba(128, 128, 128, 0.35) solid;
+	border: 1px #0a0a13 solid;
 }
 #client_console
 {
@@ -53,7 +58,7 @@
 	position: fixed;	
 	right: calc(50% - 320px);
 	bottom: 0px;
-	
+	background-color: #131325;  
 	text-align: left;
 	color: rgba(180, 173, 173, 0.973);
 	font-size: 12px;
@@ -74,6 +79,7 @@
 	font-size:15px;
 	text-align: center;
 	color:#395fa4;
+	background-color: #1c1c36;
 }
 
 .client_right
@@ -102,7 +108,7 @@
 	margin-top: 0px;
 	height: 20px;
 	width: calc(100% - 16px);
-	
+	background-color:  #1c1c36;
 }
 
 /* width */
@@ -112,16 +118,31 @@
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #222121f1;
+  background: #0a0a13;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #00000062;
+  background: #5570a388;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #000000a2;
+  background: #5570a3;
 }
+
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #131325;
+  opacity: 1; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #131325;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: #131325;
+}
+
 </style>

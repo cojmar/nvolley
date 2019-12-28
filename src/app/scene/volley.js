@@ -252,9 +252,12 @@ define(function(require) {
             this.ball.setData('onPaddle', game.ball.onPaddle);
             if (this.net.room.i_am_host){
                 this.ball.setVelocity(game.ball.Velocity[0],game.ball.Velocity[1]);
+                
             }else{
                 this.ball.setVelocity(0,0);
-            }            
+            }
+
+            
 
             var my_bricks = this.bricks.getChildren();
             for (var n in my_bricks){

@@ -36,9 +36,22 @@ define(function(require) {
             $(function(){
                 net.send_cmd('auth', {user: 'VOLLEY-'+fingerprint});            
             })
-        });        
+        });      
+        net.socket.on('room.users',function(data){
+            let prefix = 'Volley Game - ';
+            let room = data.room.split(prefix);
+            if(room.length<2) return false;
+            let next_room = prefix+(parseInt(room[1])+1);
+            net.log(next_room);
+            if(data.users<2){
+                net.send_cmd('join', data.room);
+            }else{
+                net.send_cmd('room_users', next_room);  
+            }
+        });
         net.socket.on('room.info',function(room_data){
             net.room = room_data;
+            net.clear_log();
             net.room.i_am_host = (net.room.host === net.room.me)?true:false;
             let show_menu = (room_data.type==='lobby')?true:false;
             if (!net.room.data.game && net.room.i_am_host) init_game();
@@ -60,7 +73,10 @@ define(function(require) {
                      init_game();
                 }
                 else{
-                     net.game.ball.setVelocity(net.room.data.game.ball.Velocity[0],net.room.data.game.ball.Velocity[1]);
+                    if (net.room.data.game.ball.Velocity[0] ===0 && net.room.data.game.ball.Velocity[1]===0){                        
+                        net.game.resetBall();    
+                    }                    
+                    net.game.ball.setVelocity(net.room.data.game.ball.Velocity[0],net.room.data.game.ball.Velocity[1]);
                 }
             }
             log_room();

@@ -40,10 +40,10 @@ define(function(require) {
 
 		client.colors =
 		[
-			'rgba(180, 173, 173, 0.973)',
+			'#5570a388',
 			'#395fa4',
 			'#159904',
-			'rgba(128, 128, 128, 0.35)'
+			'#0a0a13'
 		];
 		        
         
@@ -173,6 +173,12 @@ define(function(require) {
 		});
 
 		//===>DOM  functions
+		client.clear_log = function(){
+			if (client.output_div)
+			{
+				$(client.output_div).html('');
+			}
+		};
 		client.log = function(txt, color)
 		{
 			if (typeof color === 'undefined') color = 0;
