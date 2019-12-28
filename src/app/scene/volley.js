@@ -65,7 +65,7 @@ define(function(require) {
             }, this);               
             this.init_from_net();
             this.input.keyboard.on('keyup-' + 'ESC',  (event)=> {                
-                this.scene.launch('menu');
+                this.show_menu();
             });
             
             
@@ -238,6 +238,9 @@ define(function(require) {
                 this.update_ball_on_net();                         
             }
         },
+        show_menu:function(){
+            this.scene.launch('menu');
+        },
         init_from_net: function (){
             if(!this.net.room) return false;
             this.resetLevel();
@@ -246,6 +249,7 @@ define(function(require) {
             this.player1.setPosition(game.player1.position.x,game.player1.position.y);
             this.player2.setPosition(game.player2.position.x,game.player2.position.y);
             this.ball.setPosition(game.ball.x,game.ball.y);
+            this.ball.setData('onPaddle', game.ball.onPaddle);
             if (this.net.room.i_am_host){
                 this.ball.setVelocity(game.ball.Velocity[0],game.ball.Velocity[1]);
             }else{

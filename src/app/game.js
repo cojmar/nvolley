@@ -27,6 +27,7 @@ define(function(require) {
             return true;
         }
         function log_room(){
+            return false;
             $(net.output_div).html('');
             net.log(net.room);
         } 
@@ -37,15 +38,11 @@ define(function(require) {
             })
         });        
         net.socket.on('room.info',function(room_data){
-            if (room_data.type==='lobby'){                
-                start_game();
-                //net.send_cmd('join', 'Volley Game 1');
-                return false;
-            }
             net.room = room_data;
-            net.room.i_am_host = (net.room.host === net.room.me)?true:false;            
+            net.room.i_am_host = (net.room.host === net.room.me)?true:false;
+            let show_menu = (room_data.type==='lobby')?true:false;
             if (!net.room.data.game && net.room.i_am_host) init_game();
-            else if(net.room.data.game) start_game();
+            else start_game(show_menu);
             log_room();            
         });
         net.socket.on('room.data',function(data){
@@ -228,9 +225,15 @@ define(function(require) {
         start_game();
     }
     var game = false;
-    function start_game(){
+    function start_game(show_menu){
         if (game){
-            game.scene.scenes[2].init_from_net();                        
+            game.scene.scenes[1].init_from_net(); 
+            if (net.room.type ==='lobby'){
+                net.game.scene.launch('menu');
+            }else{
+                net.game.scene.stop('menu');
+                net.game.scene.setVisible(true,'my_game');
+            }
             return false;
         }        
         var config = {
@@ -238,7 +241,7 @@ define(function(require) {
             backgroundColor: '#2a2a55',
             width: "100%",
             height: "100%",        
-            scene: gameScenes,
+            scene: gameScenes,            
             physics: {
                 default: 'arcade',
                 arcade: {
@@ -252,18 +255,24 @@ define(function(require) {
                 height: 600
             },
         };
-        game = new Phaser.Game(config);    
+        game = new Phaser.Game(config);           
+        if(!show_menu){
+            setTimeout(()=>{
+                net.game.scene.stop('menu');
+                net.game.scene.setVisible(true,'my_game');                    
+            },100);
+        }
+
     }
     var gameScenes = [];
 
     return {
-        init:function(my_assets){            
-            
+        init:function(my_assets){                        
             init_net_room();               
             gameScenes.push(require('./scene/preload').init(my_assets));
+            gameScenes.push(require('./scene/volley'));
             gameScenes.push(require('./scene/menu'));
-            gameScenes.push(require('./scene/volley'));            
-            
+            $('#loader').slideUp(200);
         }
     }  
 });
