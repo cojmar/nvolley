@@ -1,19 +1,18 @@
 define(function(require) {
     var Phaser = require('phaser');
     return new Phaser.Class({
-        Extends: Phaser.Scene,    
+        Extends: Phaser.Scene,         
         initialize:    
         function my_game ()
         {
             Phaser.Scene.call(this, { key: 'my_game' });
-
+            this.net = Phaser.net;
             this.bricks;
             this.player1;
             this.ball;
         },  
         create: function ()
-        {             
-            this.net = Phaser.net;           
+        {   
             if (this.net.game){
                 return this.init_from_net();                     
             }
@@ -142,9 +141,9 @@ define(function(require) {
         },
         hitBrick: function (ball, brick)
         {
-            
-            brick.disableBody(true, true);
             if (!this.net.room.i_am_host) return false;
+            brick.disableBody(true, true);
+            
             if (this.net.room.i_am_host){
                 var broken_bricks =  JSON.parse(JSON.stringify(this.net.room.data.game.broken_bricks));
                 if(broken_bricks.indexOf(brick.brick_index)===-1){

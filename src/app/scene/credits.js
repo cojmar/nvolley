@@ -5,15 +5,13 @@ define(function(require) {
             super({
                 key: 'credits'
             })
+            this.net = Phaser.net;
         }
         init() {
         }
         create(){       
-            this.net = Phaser.net;            
             this.net.hide();
-            
             this.ball = this.physics.add.image(400, 80, 'ball').setCollideWorldBounds(true).setBounce(1);
-
             let button = this.add.text(700, 5, "Menu", 
             { 
                 fontFamily: '"Roboto Condensed"',

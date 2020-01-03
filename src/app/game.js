@@ -300,6 +300,7 @@ define(function(require) {
             gameScenes.push(require('./scene/volley'));
             gameScenes.push(require('./scene/menu'));
             gameScenes.push(require('./scene/credits'));
+            gameScenes.push(require('./scene/game_init'));
             $('#loader').slideUp(200);
         }
     }  

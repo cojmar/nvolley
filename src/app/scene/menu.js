@@ -5,11 +5,12 @@ define(function(require) {
             super({
                 key: 'menu'
             })
+            this.net = Phaser.net;
         }
         init() {
         }
         create(){                   
-            this.net = Phaser.net;
+            
             //console.log('menu');
             
             setTimeout(()=>{
@@ -121,10 +122,8 @@ define(function(require) {
             }
         }
         show_game(){
-            if (this.net){
-                if(this.net.room.type ==='lobby') return false;
-                this.net.hide();
-            }
+            if(this.net.room.type ==='lobby') return false;
+            this.net.hide();
             this.scene.setVisible(true,'my_game');
             this.scene.stop();            
         }
