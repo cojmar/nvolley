@@ -3,7 +3,9 @@ define(function(require) {
     var Phaser = require('phaser');
     var config = require('json!./config.json');
     var net = require('./network').start(config.network);   
+    net.new_game_prefix = 'Volley Game - ';
     Phaser.net = net;
+    
     var Fingerprint = require('fingerprint');
     var fingerprint = new Fingerprint().get();
     var $ = require('jquery');
@@ -38,7 +40,7 @@ define(function(require) {
             })
         });      
         net.socket.on('room.users',function(data){
-            let prefix = 'Volley Game - ';
+            let prefix = net.new_game_prefix;
             let room = data.room.split(prefix);
             if(room.length<2) return false;
             let next_room = prefix+(parseInt(room[1])+1);
@@ -253,6 +255,7 @@ define(function(require) {
             }
             return false;
         }        
+        gameScenes[0].show_menu = show_menu;
         var config = {
             type: Phaser.WEBGL,
             backgroundColor: '#2a2a55',
@@ -272,16 +275,7 @@ define(function(require) {
                 height: 600
             },
         };
-        game = new Phaser.Game(config);           
-        if(!show_menu){
-            
-            setTimeout(()=>{
-                net.game.scene.stop('menu');
-                net.game.scene.setVisible(true,'my_game');   
-                net.hide();                 
-            },100);
-        }
-
+        game = new Phaser.Game(config);
     }
     var gameScenes = [];
 

@@ -40,6 +40,9 @@ define(function(require) {
 
             this.player1 = this.physics.add.image(200, 550, 'player1').setImmovable();
             this.player2 = this.physics.add.image(600, 550, 'player2').setImmovable();
+
+            this.player1.body.setBoundsRectangle(new Phaser.Geom.Rectangle(0, 0, 410, 200)).setCollideWorldBounds(1);
+            this.player2.body.setBoundsRectangle(new Phaser.Geom.Rectangle(410, 0, 390, 200)).setCollideWorldBounds(1);
         
 
             this.middle_net = this.physics.add.image(410, 550, 'net').setImmovable();
@@ -71,12 +74,33 @@ define(function(require) {
                 this.net.show();
             });
             
+            //Menu button
+            let button = this.add.text(700, 5, "Menu", 
+                { 
+                    fontFamily: '"Roboto Condensed"',
+                    fontSize:"25px",
+                    color:"#395fa4"
+                });
             
+            button.setInteractive({ useHandCursor: true  });                
+            button.on("pointerup", () => {                
+                this.show_menu();
+            }); 
+            button.on("pointerover", () => {
+                button.setColor('#395fa4');     
+                button.setColor('#fff');                    
+            });
+            button.on("pointerout", () => {
+                button.setColor('#395fa4');                     
+            });
+
+
+
         },
         process_game_data:function(data){     
             if (data.player1){
                 if(data.player1.position){                        
-                    this.player1.x = data.player1.position.x;
+                    this.player1.setPosition(data.player1.position.x,this.player1.y);             
                     //  Keep the paddle within the game    
                     /*         
                     if (this.ball.getData('onPaddle'))
@@ -88,7 +112,7 @@ define(function(require) {
             }
             if (data.player2){
                 if(data.player2.position){
-                    this.player2.x = data.player2.position.x
+                    this.player2.setPosition(data.player2.position.x,this.player2.y);;             
                 }
             }                
             if (data.ball){
@@ -252,7 +276,13 @@ define(function(require) {
             this.player1.setPosition(game.player1.position.x,game.player1.position.y);
             this.player2.setPosition(game.player2.position.x,game.player2.position.y);
             this.ball.setPosition(game.ball.x,game.ball.y);
+            if(game.ball.Velocity[0]===game.ball.Velocity[1] && game.ball.Velocity[0] === 0){
+                game.ball.onPaddle = true;
+            }
+
             this.ball.setData('onPaddle', game.ball.onPaddle);
+
+            //console.log(game.ball);
             if (this.net.room.i_am_host){
                 this.ball.setVelocity(game.ball.Velocity[0],game.ball.Velocity[1]);
                 

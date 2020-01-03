@@ -4,3 +4,6 @@ body {
     overflow-y: hidden;
     background-color: #232344;    
 }
+canvas{
+    background-color: #2A2A55;
+}

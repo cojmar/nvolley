@@ -8,7 +8,7 @@ define(function(require) {
             this.game_assets = game_assets;
         }
         preload()
-        {
+        {            
             this.load.svg('favicon', 'favicon.ico');
             for (var n in this.game_assets){
             this.svg2texture(this.game_assets[n].name, this.game_assets[n].svg,this);
@@ -21,9 +21,9 @@ define(function(require) {
             }
             svg_image.src = 'data:image/svg+xml,' + encodeURIComponent(svg_text)            
         }
-        create() {             
+        create() {           
             this.scene.start('my_game');
-            this.scene.run('menu');
+            if(this.show_menu) this.scene.run('menu');
         }
     }
     return {

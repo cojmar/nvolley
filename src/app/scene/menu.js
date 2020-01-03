@@ -10,13 +10,15 @@ define(function(require) {
         }
         create(){                   
             this.net = Phaser.net;
+            
             setTimeout(()=>{
                 if(!this.scene.isVisible('my_game')){                
                     this.net.show();
                 }
             },200);
             if(this.scene.isVisible('my_game')){                
-                this.scene.setVisible(false,'my_game');                  
+                this.scene.setVisible(false,'my_game');    
+                
             }else{                
                 this.show_game();
             }
@@ -64,7 +66,7 @@ define(function(require) {
                         color:"#395fa4"
                     });
                 button.index = but_index;
-                button.setInteractive();                
+                button.setInteractive({ useHandCursor: true  });                
                 button.on("pointerup", () => {                
                     this.do_action();
                 }); 
@@ -103,7 +105,7 @@ define(function(require) {
                     //this.scene.restart();
                 break;
                 case 'Join public game':
-                    this.net.send_cmd('room_users', 'Volley Game - 1');  
+                    this.net.send_cmd('room_users', this.net.new_game_prefix+'2');  
                 break;
                 case 'Join private game':
                     button.setColor('#232344'); 
