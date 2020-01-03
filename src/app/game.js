@@ -285,6 +285,7 @@ define(function(require) {
             gameScenes.push(require('./scene/preload').init(my_assets));
             gameScenes.push(require('./scene/volley'));
             gameScenes.push(require('./scene/menu'));
+            gameScenes.push(require('./scene/credits'));
             $('#loader').slideUp(200);
         }
     }  

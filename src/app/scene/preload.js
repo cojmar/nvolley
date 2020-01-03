@@ -23,7 +23,7 @@ define(function(require) {
         }
         create() {           
             this.scene.start('my_game');
-            if(this.show_menu) this.scene.run('menu');
+            if(this.show_menu) this.scene.launch('menu');
         }
     }
     return {

@@ -88,7 +88,7 @@ define(function(require) {
                 menu_but.setColor('#395fa4');
             });
             button.setColor('#fff');
-            if (['Join private game','Host private game'].indexOf(button.text)!==-1) button.setColor('#232344')
+            if (['Game rules','Host private game'].indexOf(button.text)!==-1) button.setColor('#232344')
             
             
             this.hoverSprite.y = button.y + 15;
@@ -106,9 +106,12 @@ define(function(require) {
                 break;
                 case 'Join public game':
                     this.net.send_cmd('room_users', this.net.new_game_prefix+'2');  
-                break;
+                break;                
                 case 'Join private game':
                     button.setColor('#232344'); 
+                break;
+                case 'Credits':
+                    this.scene.start('credits');
                 break;
                 
             }
