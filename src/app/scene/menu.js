@@ -10,6 +10,7 @@ define(function(require) {
         }
         create(){                   
             this.net = Phaser.net;
+            //console.log('menu');
             
             setTimeout(()=>{
                 if(!this.scene.isVisible('my_game')){                
@@ -88,7 +89,7 @@ define(function(require) {
                 menu_but.setColor('#395fa4');
             });
             button.setColor('#fff');
-            if (['Game rules','Host private game'].indexOf(button.text)!==-1) button.setColor('#232344')
+            if (['Game rules'].indexOf(button.text)!==-1) button.setColor('#232344')
             
             
             this.hoverSprite.y = button.y + 15;
@@ -104,6 +105,9 @@ define(function(require) {
                     this.net.send_cmd('join', 'lobby');  
                     //this.scene.restart();
                 break;
+                case 'Host private game':                    
+                    this.net.send_cmd('join', this.net.room.me+' - '+Date.now());  
+                break;
                 case 'Join public game':
                     this.net.send_cmd('room_users', this.net.new_game_prefix+'2');  
                 break;                
@@ -116,9 +120,11 @@ define(function(require) {
                 
             }
         }
-        show_game(){            
-            if(this.net.room.type ==='lobby') return false;
-            this.net.hide();
+        show_game(){
+            if (this.net){
+                if(this.net.room.type ==='lobby') return false;
+                this.net.hide();
+            }
             this.scene.setVisible(true,'my_game');
             this.scene.stop();            
         }

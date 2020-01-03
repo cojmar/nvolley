@@ -70,9 +70,7 @@ define(function(require) {
             this.input.keyboard.on('keyup-' + 'ESC',  (event)=> {                
                 this.show_menu();
             });
-            this.input.keyboard.on('keyup-' + 'ENTER',  (event)=> {                
-                this.net.show();
-            });
+           
             
             //Menu button
             let button = this.add.text(700, 5, "Menu", 
@@ -144,9 +142,9 @@ define(function(require) {
         },
         hitBrick: function (ball, brick)
         {
-            if (!this.net.room.i_am_host) return false;
-            brick.disableBody(true, true);
             
+            brick.disableBody(true, true);
+            if (!this.net.room.i_am_host) return false;
             if (this.net.room.i_am_host){
                 var broken_bricks =  JSON.parse(JSON.stringify(this.net.room.data.game.broken_bricks));
                 if(broken_bricks.indexOf(brick.brick_index)===-1){
@@ -269,6 +267,7 @@ define(function(require) {
             this.scene.launch('menu');
         },
         init_from_net: function (){
+            if(!this.net) return false;
             if(!this.net.room) return false;
             this.resetLevel();
             var game = this.net.room.data.game;

@@ -36,9 +36,18 @@ define(function(require) {
         net.room = false;   
         net.socket.on('connect',function(){
             $(function(){
+                net.url_room = window.location.href.split('#');
+                net.url_room = (net.url_room.length===2)?atob(net.url_room[1]):false;
                 net.send_cmd('auth', {user: 'VOLLEY-'+fingerprint});            
             })
         });      
+        net.socket.on('auth.info',(data)=>{
+            net.auth_data = data;
+            if (!net.url_room) return false;
+            if(net.url_room !== data.room){     
+                net.send_cmd('join',net.url_room);                
+            }            
+        });
         net.socket.on('room.users',function(data){
             let prefix = net.new_game_prefix;
             let room = data.room.split(prefix);
@@ -52,10 +61,13 @@ define(function(require) {
             }
         });
         net.socket.on('room.info',function(room_data){
+            //console.log('room.info')
             net.room = room_data;
+            window.location.href='#'+btoa(net.room.name);
             net.clear_log();
             net.room.i_am_host = (net.room.host === net.room.me)?true:false;
             let show_menu = (room_data.type==='lobby')?true:false;
+            //console.log(show_menu);
             if (!net.room.data.game && net.room.i_am_host) init_game();
             else start_game(show_menu);
             log_room();            
@@ -239,19 +251,21 @@ define(function(require) {
             },
             broken_bricks:[],
         }
-        net.send_cmd('set_room_data',{game:game});
+        net.send_cmd('set_room_data',{game:game});        
         start_game();
     }
     var game = false;
     function start_game(show_menu){
         if (game){
             game.scene.scenes[1].init_from_net(); 
-            if (net.room.type ==='lobby'){
+            if (net.room.type ==='lobby'){                
                 net.game.scene.launch('menu');
             }else{
-                net.game.scene.stop('menu');
-                net.game.scene.setVisible(true,'my_game');
-                net.hide();
+                
+                game.scene.scenes[2].show_game();
+                //net.game.scene.stop('menu');
+                //net.game.scene.setVisible(true,'my_game');
+                //net.hide();
             }
             return false;
         }        
