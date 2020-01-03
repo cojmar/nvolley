@@ -1,0 +1,16 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 32" width="64px" height="32px">
+    <defs>
+        <linearGradient id="linear-gradient" y1="16" x2="64" y2="16" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#b38fc4"/>
+            <stop offset="0.2" stop-color="#8d4194" stop-opacity="0.76"/>
+            <stop offset="0.7" stop-color="#822d8b" stop-opacity="0.36"/>
+            <stop offset="0.9" stop-color="#910067" stop-opacity="0.1"/>
+            <stop offset="1" stop-color="#ae4397" stop-opacity="0"/>
+        </linearGradient>
+    </defs>
+    <title>
+        brick
+    </title>
+    <path d="M 60.6 3.7 V 28.9 H 3.4 V 3.7 H 60.6 M 64 0.3 H 0 V 32.3 H 64 V 0.3 Z" style="fill: url(#linear-gradient)"/>
+    <rect fill="#5b1e4e" height="26.6" width="57.5" x="3" y="2.7"/>
+</svg>

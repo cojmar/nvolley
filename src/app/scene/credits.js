@@ -40,7 +40,7 @@ define(function(require) {
                 color:"#000",
                 lineSpacing: 130,
             });
-            this.add.text(350, 50, ['                    Cojmar','                   ZaDarkSide','SandaX'].join("\n"), 
+            this.add.text(350, 50, ['                    Cojmar','                   ZaDarkSide','Sandax'].join("\n"), 
             { 
                 fontFamily: '"Roboto Condensed"',
                 fontSize:"25px",
@@ -55,7 +55,7 @@ define(function(require) {
                 color:"#395fa4",
                 lineSpacing: 130,
             });         
-            this.text2 = this.add.text(350, 50, ['                    Cojmar','                   ZaDarkSide','SandaX'].join("\n"), 
+            this.text2 = this.add.text(350, 50, ['                    Cojmar','                   ZaDarkSide','Sandax'].join("\n"), 
             { 
                 fontFamily: '"Roboto Condensed"',
                 fontSize:"25px",
