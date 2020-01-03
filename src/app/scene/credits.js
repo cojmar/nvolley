@@ -73,20 +73,21 @@ define(function(require) {
                 targets: [this.text1,this.text2,this.p1,this.p2],
                 duration: 1000,
                 scaleX: 1.02,
+                scaleY: 1.02,
                 ease: 'Quad.easeInOut',
                 repeat: -1,
                 yoyo: true
             });
 
             this.tweens.add({
-                targets: [this.text1,this.text2,this.p1,this.p2],
-                duration: 1000,
-                scaleY: 1.02,
-                ease: 'Cubic.easeInOut',
+                targets: this.ball,
+                duration: 500,
+                scaleX: 2,
+                scaleY: 2,
+                ease: 'Quad.easeInOut',
                 repeat: -1,
                 yoyo: true
             });
-
             
             this.ball.body.setBoundsRectangle(new Phaser.Geom.Rectangle(0, 0, 800, 400));
             this.ball.setVelocity(300,-300);
