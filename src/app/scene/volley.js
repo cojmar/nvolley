@@ -10,6 +10,7 @@ define(function(require) {
             this.bricks;
             this.player1;
             this.ball;
+            this.status = 'lobby';
         },  
         create: function ()
         {   
@@ -65,7 +66,7 @@ define(function(require) {
                     x:Phaser.Math.Clamp(pointer.x, 52, 1748)                    
                 });
             }, this);               
-            this.init_from_net();
+            
             this.input.keyboard.on('keyup-' + 'ESC',  (event)=> {                
                 this.show_menu();
             });
@@ -90,11 +91,12 @@ define(function(require) {
             button.on("pointerout", () => {
                 button.setColor('#395fa4');                     
             });
-
-
-
+            this.init_from_net();
         },
         process_game_data:function(data){     
+            if(data.status){
+                this.status = data.status;
+            }
             if (data.player1){
                 if(data.player1.position){                        
                     this.player1.setPosition(data.player1.position.x,this.player1.y);             
@@ -253,6 +255,22 @@ define(function(require) {
         },    
         update: function ()
         {   
+            
+            let is_visible = this.scene.isVisible();
+            let game_ui_visible = this.scene.isVisible('game_ui');
+            if (is_visible !== game_ui_visible) this.scene.setVisible(is_visible,'game_ui');
+
+
+            if (this.status !=this.old_status){                
+                this.old_status = this.status;                
+                if (this.status !=='ready'){
+                    this.player1.visible = this.player2.visible= this.middle_net.visible = this.ball.visible = false;
+                }
+                else{
+                    this.player1.visible = this.player2.visible= this.middle_net.visible = this.ball.visible = true;
+                }
+            }
+
             if (!this.net.room.i_am_host) return false;
             if (this.ball.y > 640)
             {
@@ -268,9 +286,11 @@ define(function(require) {
         init_from_net: function (){
             if(!this.net) return false;
             if(!this.net.room) return false;
+            
             this.resetLevel();
             var game = this.net.room.data.game;
             if (!game) return false;
+            this.status = game.status;            
             this.player1.setPosition(game.player1.position.x,game.player1.position.y);
             this.player2.setPosition(game.player2.position.x,game.player2.position.y);
             this.ball.setPosition(game.ball.x,game.ball.y);

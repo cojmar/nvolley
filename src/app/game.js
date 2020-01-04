@@ -53,7 +53,7 @@ define(function(require) {
             let room = data.room.split(prefix);
             if(room.length<2) return false;
             let next_room = prefix+(parseInt(room[1])+1);
-            net.log(next_room);
+            //net.log(next_room);
             if(data.users<2){
                 net.send_cmd('join', data.room);
             }else{
@@ -100,12 +100,14 @@ define(function(require) {
             if (!net.room) return false;
             net.room.users[data.user] = data.data;
             if(net.room.data.game && net.room.i_am_host){
+
                 if(net.room.data.game.player1.user === false ){
                     net.send_cmd('set_room_data',{
                         game:{
                             player1:{
                                 user:data.user
-                            }
+                            },
+                            status:'ready',
                         }
                     });   
                 }
@@ -114,7 +116,8 @@ define(function(require) {
                         game:{
                             player2:{
                                 user:data.user
-                            }
+                            },
+                            status:'ready',
                         }
                     });   
                 }                
@@ -125,13 +128,14 @@ define(function(require) {
 		{
             if (!net.room) return false;
             if (net.room.users[data.user]) delete net.room.users[data.user];
-            if(net.room.data.game && net.room.i_am_host){
+            if(net.room.data.game){
                 if(net.room.data.game.player1.user === data.user ){
                     net.send_cmd('set_room_data',{
                         game:{
                             player1:{
                                 user:false
-                            }
+                            },
+                            status:'pending',
                         }
                     });   
                 }
@@ -140,7 +144,8 @@ define(function(require) {
                         game:{
                             player2:{
                                 user:false
-                            }
+                            },
+                            status:'pending',
                         }
                     });   
                 }                
@@ -159,6 +164,7 @@ define(function(require) {
 		{
             if (!net.room) return false;
             if (!net.room.data.game) return false;
+            if (net.room.data.game.status !=='ready') return false;
             
             if (data.user === net.room.data.game.player1.user){
                 if (data.data.x > 375) data.data.x = 375;
@@ -185,7 +191,7 @@ define(function(require) {
 		{
             if (!net.room) return false;
             if (!net.room.data.game) return false;
-            
+            if (net.room.data.game.status !=='ready') return false;
             if (data.user === net.room.data.game.player1.user || data.user === net.room.data.game.player2.user){
                 if (net.game.ball.getData('onPaddle'))
                 {
@@ -228,6 +234,9 @@ define(function(require) {
     function init_game(){
         //console.log('init_game');
         var game = {
+            current_player:1,
+            status:'pending',
+            score:[0,0],
             player1:{
                 user:Object.keys(net.room.users)[0] || false,                
                 position:{
@@ -300,7 +309,7 @@ define(function(require) {
             gameScenes.push(require('./scene/volley'));
             gameScenes.push(require('./scene/menu'));
             gameScenes.push(require('./scene/credits'));
-            gameScenes.push(require('./scene/game_init'));
+            gameScenes.push(require('./scene/game_ui'));
             $('#loader').slideUp(200);
         }
     }  

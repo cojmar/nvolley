@@ -21,8 +21,9 @@ define(function(require) {
             }
             svg_image.src = 'data:image/svg+xml,' + encodeURIComponent(svg_text)            
         }
-        create() {           
+        create() {                       
             this.scene.start('my_game');
+            this.scene.launch('game_ui');
             if(this.show_menu) this.scene.launch('menu');
         }
     }

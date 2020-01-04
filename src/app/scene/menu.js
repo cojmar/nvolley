@@ -103,7 +103,8 @@ define(function(require) {
                     this.show_game();
                 break;
                 case 'Leave game':
-                    this.net.send_cmd('join', 'lobby');  
+                    this.net.send_cmd('join', 'lobby');
+                    this.net.game.status = 'lobby';
                     //this.scene.restart();
                 break;
                 case 'Host private game':                    
