@@ -37,7 +37,6 @@ define(function(require) {
 		client.client_room_users= $('#client_room_users');
 		client.client_room= $('#client_room');
 		
-
 		client.colors =
 		[
 			'#5570a388',
@@ -50,6 +49,7 @@ define(function(require) {
 		//== Room functions 
 		client.socket.on('room.info', function(data)
 		{				
+			client.room_info = data;
 			var r_users = '';
 			me = data.me;
 			for (var n in data.users){
@@ -60,9 +60,9 @@ define(function(require) {
 				}
 					
 				
-				r_users +="<div id=\"room_user_"+n+"\" style=\"color:"+color+";\">"+n+"</div>";					
+				r_users +="<div id=\"room_user_"+n+"\" style=\"color:"+color+";\">"+data.users[n].info.nick+"</div>";					
 			}
-			client.text_input.attr("placeholder", ' You are Typing as "'+data.me+'" on "' +data.name+ '"');
+			client.text_input.attr("placeholder", ' You are Typing as "'+data.users[data.me].info.nick+'" on "' +data.name+ '"');
 			client.client_room_users.html(r_users);
 			client.client_room.html(data.name);
 		});
@@ -77,8 +77,8 @@ define(function(require) {
 			
 		});
 		client.socket.on('room.user_join', function(data)
-		{	
-			client.client_room_users.append("<div id=\"room_user_"+data.user+"\" style=\"color:"+client.colors[3]+"\">"+data.user+"</div>");				
+		{				
+			client.client_room_users.append("<div id=\"room_user_"+data.user+"\" style=\"color:"+client.colors[3]+"\">"+data.data.info.nick+"</div>");				
 		});			
 		client.socket.on('room.user_leave', function(data)
 		{
@@ -147,8 +147,24 @@ define(function(require) {
 		});
 		client.socket.on('room.msg', function(data)
 		{
-			msg = '<span style="color:'+client.colors[3]+';">[' + data.user + '] </span>' + data.msg;
+			let nick = data.user;
+			if (client.room_info){
+				nick = client.room_info.users[data.user].info.nick;
+			}
+			msg = '<span style="color:'+client.colors[3]+';">[' + nick + '] </span>' + data.msg;
 			client.log(msg);
+		});
+
+		client.socket.on('room.user_info',function(data){			
+			if (client.room_info.users[data.user]){
+				for (var n in data.info){
+					client.room_info.users[data.user].info[n] = data.info[n];
+				}
+				if(data.info.nick){					
+					$('#room_user_'+data.user).html(data.info.nick);
+					
+				}
+			}			
 		});
 
 		client.socket.on('server.msg', function(data)
