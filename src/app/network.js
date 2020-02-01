@@ -9,10 +9,11 @@ define(function(require) {
 		var server = config.servers[config.server];
 		client =
 			{
-				socket: io(server),		
+				socket: io.connect(server,{ transports: [ 'websocket' ] }),		
 				config:config,
 				server:server
 			};
+			
 		//==Add client functions
 		//===>Soket  functions
 		client.send_cmd = function(cmd, data)
@@ -78,6 +79,9 @@ define(function(require) {
 		});
 		client.socket.on('room.user_join', function(data)
 		{				
+			if (client.room_info){
+				client.room_info.users[data.user]=data.data;
+			}
 			client.client_room_users.append("<div id=\"room_user_"+data.user+"\" style=\"color:"+client.colors[3]+"\">"+data.data.info.nick+"</div>");				
 		});			
 		client.socket.on('room.user_leave', function(data)
