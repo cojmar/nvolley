@@ -154,6 +154,7 @@ define(function(require) {
                 }
                 
                 if (!this.net.room.i_am_host){
+                    
                     if (data.ball.Velocity){
                         if (this.ball.body.velocity.x !== data.ball.Velocity[0]){
                             if(this.skill_prediction)  this.ball.setVelocityX(data.ball.Velocity[0]);
@@ -163,7 +164,13 @@ define(function(require) {
                         } 
                         //this.ball.setVelocity(data.ball.Velocity[0],data.ball.Velocity[1]);
                     }                        
-                    if(this.skill_prediction) return false;
+                    if(this.skill_prediction){
+                        if (this.ball.x < data.ball.x-17 || this.ball.x > data.ball.x+17 ) this.ball.x = data.ball.x; //this.init_from_net();
+                        if (this.ball.y < data.ball.y-17 || this.ball.y > data.ball.y+17 ) this.ball.y = data.ball.y;
+
+
+                        return false;
+                    } 
                     if(data.ball.x){
                     this.ball.x = data.ball.x;
                     }

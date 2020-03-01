@@ -87,14 +87,14 @@ define(function(require) {
                 }
                 else{
                     
-                    if (net.room.i_am_host) net.game.p_button.visible=false;
+                    //if (net.room.i_am_host) net.game.p_button.visible=false;
                     if (net.room.data.game.ball.Velocity[0] ===0 && net.room.data.game.ball.Velocity[1]===0){                        
                         net.game.resetBall();    
                     }                    
                     net.game.ball.setVelocity(net.room.data.game.ball.Velocity[0],net.room.data.game.ball.Velocity[1]);
                 }
             }else{
-                net.game.p_button.visible=true;
+                //net.game.p_button.visible=true;
             }
             log_room();
         });
