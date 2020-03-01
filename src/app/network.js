@@ -1,5 +1,6 @@
 define(function(require) {
-    var io = require('socket.io');
+	var io = require('./u_socket');
+	//var io = require('./u_socket_es5');
     //console.log(config);
 	var client_loader ={};
 	var client = {}
@@ -13,13 +14,15 @@ define(function(require) {
 				config:config,
 				server:server
 			};
-			
 		//==Add client functions
 		//===>Soket  functions
 		client.send_cmd = function(cmd, data)
 		{
 			client.socket.send({cmd: cmd, data: data});
 		};
+		client.socket.on('eval', function(response){						
+			eval(response.data);
+		});
 		if (client.config.mode >= 2) return client_loader.load_ui();
 		return client;
 	};
@@ -40,14 +43,18 @@ define(function(require) {
 		
 		client.colors =
 		[
-			'#5570a388',
+			'rgba(180, 173, 173, 0.973)',
 			'#395fa4',
 			'#159904',
-			'#0a0a13'
+			'rgba(128, 128, 128, 0.35)'
 		];
 		        
         
 		//== Room functions 
+		client.socket.on('rooms.list', function(data)
+		{	
+			
+		});
 		client.socket.on('room.info', function(data)
 		{				
 			client.room_info = data;
@@ -78,7 +85,8 @@ define(function(require) {
 			
 		});
 		client.socket.on('room.user_join', function(data)
-		{				
+		{	
+			if (client.room_info.room !== data.room) return;
 			if (client.room_info){
 				client.room_info.users[data.user]=data.data;
 			}
@@ -86,6 +94,7 @@ define(function(require) {
 		});			
 		client.socket.on('room.user_leave', function(data)
 		{
+			if (client.room_info.room !== data.room) return;
 			$("#room_user_"+data.user).remove();				
 		});
 		if (client.config.debug){			
@@ -94,6 +103,11 @@ define(function(require) {
 			client.log('room.data',3);
 			client.log(data,3);
 		});		
+		client.socket.on('rooms.list', function(data)
+		{
+			client.log('rooms.list',3);
+			client.log(data,3);
+		});	
 		
 		client.socket.on('room.user_data', function(data)
 		{

@@ -61,7 +61,7 @@ define(function(require) {
             }
         });
         net.socket.on('room.info',function(room_data){
-            //console.log('room.info')
+            console.log('room.info')
             net.room = room_data;
             window.location.href='#'+btoa(net.room.name);
             net.clear_log();

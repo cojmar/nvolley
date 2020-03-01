@@ -1,6 +1,6 @@
 {
     "network":{
-        "servers":["https://ws.emupedia.net:443","http://cojmar.zapto.org:8088"],
+        "servers":["wss://ws.emupedia.net","ws://cojmar.zapto.org:3000"],
         "server":0,        
         "mode":2,
         "debug":false        
