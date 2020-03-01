@@ -17,7 +17,7 @@ define(function(require) {
             this.skill_prediction = this.net.room_info.users[this.net.room_info.me].data.skill_prediction || true;
             this.skill_prediction = (this.skill_prediction==="off")?false:true;
            
-            console.log(this.skill_prediction)
+            //console.log(this.skill_prediction)
             if (this.net.game){
                 return this.init_from_net();                     
             }
