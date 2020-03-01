@@ -38,7 +38,7 @@ define(function(require) {
             $(function(){
                 net.url_room = window.location.href.split('#');
                 net.url_room = (net.url_room.length===2)?atob(net.url_room[1]):false;
-                net.send_cmd('auth', {user: 'VOLLEY-'+fingerprint});            
+                net.send_cmd('auth', {user: 'VOLLEY-'+fingerprint,room:'N Volley'});            
             })
         });      
         net.socket.on('auth.info',(data)=>{
@@ -60,8 +60,7 @@ define(function(require) {
                 net.send_cmd('room_users', next_room);  
             }
         });
-        net.socket.on('room.info',function(room_data){
-            console.log('room.info')
+        net.socket.on('room.info',function(room_data){            
             net.room = room_data;
             window.location.href='#'+btoa(net.room.name);
             net.clear_log();

@@ -173,7 +173,8 @@ define(function(require) {
 			client.log(msg);
 		});
 
-		client.socket.on('room.user_info',function(data){			
+		client.socket.on('room.user_info',function(data){		
+			if (!client.room_info)	return false;
 			if (client.room_info.users[data.user]){
 				for (var n in data.info){
 					client.room_info.users[data.user].info[n] = data.info[n];
