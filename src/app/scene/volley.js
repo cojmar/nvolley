@@ -14,6 +14,7 @@ define(function(require) {
         },  
         create: function ()
         {   
+            this.skill_prediction = false;
             if (this.net.game){
                 return this.init_from_net();                     
             }
@@ -119,14 +120,14 @@ define(function(require) {
                 if(typeof data.ball.onPaddle !=='undefined'){
                     this.ball.setData('onPaddle', data.ball.onPaddle);
                 }
-                
+                if(this.skill_prediction) return false;
                 if (!this.net.room.i_am_host){
                     if (data.ball.Velocity){
                         if (this.ball.body.velocity.x !== data.ball.Velocity[0]){
-                            //this.ball.setVelocityX(data.ball.Velocity[0]);
+                            // this.ball.setVelocityX(data.ball.Velocity[0]);
                         }
                         if (this.ball.body.velocity.y !== data.ball.Velocity[1]){
-                            //this.ball.setVelocityY(data.ball.Velocity[1]);
+                            // this.ball.setVelocityY(data.ball.Velocity[1]);
                         } 
                         //this.ball.setVelocity(data.ball.Velocity[0],data.ball.Velocity[1]);
                     }                        
@@ -143,7 +144,7 @@ define(function(require) {
         },
         hitBrick: function (ball, brick)
         {
-            if (!this.net.room.i_am_host) return false;
+            if (!this.net.room.i_am_host && !this.skill_prediction) return false;
             brick.disableBody(true, true);
             
             if (this.net.room.i_am_host){
@@ -194,7 +195,7 @@ define(function(require) {
 
         hitPaddle: function (ball, paddle)
         {
-            if (!this.net.room.i_am_host) return false;
+            if (!this.net.room.i_am_host && !this.skill_prediction) return false;
             var diff = 0;                    
 
             if (ball.x < paddle.x)
@@ -306,6 +307,7 @@ define(function(require) {
                 
             }else{
                 this.ball.setVelocity(0,0);
+                if (this.skill_prediction) this.ball.setVelocity(game.ball.Velocity[0],game.ball.Velocity[1]);
             }
 
             
