@@ -81,19 +81,24 @@ define(function(require) {
             if (!net.room) return false;
             net.room.host = host;
             net.room.i_am_host = (net.room.host === net.room.me)?true:false;
-            if (net.room.i_am_host){
+            if (net.room.i_am_host){                
                 if (!net.room.data.game){
                      init_game();
                 }
                 else{
+                    
+                    if (net.room.i_am_host) net.game.p_button.visible=false;
                     if (net.room.data.game.ball.Velocity[0] ===0 && net.room.data.game.ball.Velocity[1]===0){                        
                         net.game.resetBall();    
                     }                    
                     net.game.ball.setVelocity(net.room.data.game.ball.Velocity[0],net.room.data.game.ball.Velocity[1]);
                 }
+            }else{
+                net.game.p_button.visible=true;
             }
             log_room();
         });
+     
         net.socket.on('room.user_join', function(data)
 		{
             if (!net.room) return false;

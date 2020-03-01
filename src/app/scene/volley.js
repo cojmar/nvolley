@@ -14,7 +14,10 @@ define(function(require) {
         },  
         create: function ()
         {   
-            this.skill_prediction = true;
+            this.skill_prediction = this.net.room_info.users[this.net.room_info.me].data.skill_prediction || true;
+            this.skill_prediction = (this.skill_prediction==="off")?false:true;
+           
+            console.log(this.skill_prediction)
             if (this.net.game){
                 return this.init_from_net();                     
             }
@@ -71,7 +74,36 @@ define(function(require) {
             this.input.keyboard.on('keyup-' + 'ESC',  (event)=> {                
                 this.show_menu();
             });
-           
+           //Prediction button
+           let p_button = this.add.text(530, 5, this.skill_prediction?"Prediction ON":"Prediction OFF", 
+           { 
+               fontFamily: '"Roboto Condensed"',
+               fontSize:"25px",
+               color:"#395fa4"
+           });
+           p_button.setInteractive({ useHandCursor: true  });                
+           p_button.on("pointerup", () => {                                
+                this.net.send_cmd('set_data',{skill_prediction:(this.skill_prediction)?"off":"on"});
+            }); 
+            p_button.on("pointerover", () => {
+                p_button.setColor('#395fa4');     
+                p_button.setColor('#fff');                    
+            });
+            p_button.on("pointerout", () => {
+                p_button.setColor('#395fa4');                     
+            });
+            
+
+            this.net.socket.on('room.user_data', (data)=>
+		    {                
+                let old_prediction =this.skill_prediction;
+                this.skill_prediction = this.net.room_info.users[this.net.room_info.me].data.skill_prediction || true;
+                this.skill_prediction = (this.skill_prediction==="off")?false:true;
+                p_button.text=this.skill_prediction?"Prediction ON":"Prediction OFF";
+                if (!old_prediction === this.skill_prediction) this.init_from_net();       
+                
+            });
+            this.p_button = p_button;
             
             //Menu button
             let button = this.add.text(700, 5, "Menu", 
@@ -145,9 +177,8 @@ define(function(require) {
         },
         hitBrick: function (ball, brick)
         {
-            if (!this.net.room.i_am_host && !this.skill_prediction) return false;
-            brick.disableBody(true, true);
-            
+            if (this.net.room.i_am_host || this.skill_prediction) brick.disableBody(true, true);
+            if (!this.net.room.i_am_host) return false;
             if (this.net.room.i_am_host){
                 var broken_bricks =  JSON.parse(JSON.stringify(this.net.room.data.game.broken_bricks));
                 if(broken_bricks.indexOf(brick.brick_index)===-1){
@@ -181,6 +212,7 @@ define(function(require) {
 
         resetBall: function ()
         {
+            if (!this.ball) return false;
             this.ball.setVelocity(0);
             this.ball.setPosition(this.ball.x, 480);
             this.ball.setData('onPaddle', true);
@@ -189,6 +221,7 @@ define(function(require) {
         resetLevel: function ()
         {
             this.resetBall();    
+            if (!this.bricks) return false;
             this.bricks.children.each(function (brick) {    
                 brick.enableBody(false, 0, 0, true, true);    
             });
