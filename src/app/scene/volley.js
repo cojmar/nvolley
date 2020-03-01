@@ -14,7 +14,7 @@ define(function(require) {
         },  
         create: function ()
         {   
-            this.skill_prediction = false;
+            this.skill_prediction = true;
             if (this.net.game){
                 return this.init_from_net();                     
             }
@@ -120,17 +120,18 @@ define(function(require) {
                 if(typeof data.ball.onPaddle !=='undefined'){
                     this.ball.setData('onPaddle', data.ball.onPaddle);
                 }
-                if(this.skill_prediction) return false;
+                
                 if (!this.net.room.i_am_host){
                     if (data.ball.Velocity){
                         if (this.ball.body.velocity.x !== data.ball.Velocity[0]){
-                            // this.ball.setVelocityX(data.ball.Velocity[0]);
+                            if(this.skill_prediction)  this.ball.setVelocityX(data.ball.Velocity[0]);
                         }
                         if (this.ball.body.velocity.y !== data.ball.Velocity[1]){
-                            // this.ball.setVelocityY(data.ball.Velocity[1]);
+                            if(this.skill_prediction) this.ball.setVelocityY(data.ball.Velocity[1]);
                         } 
                         //this.ball.setVelocity(data.ball.Velocity[0],data.ball.Velocity[1]);
                     }                        
+                    if(this.skill_prediction) return false;
                     if(data.ball.x){
                     this.ball.x = data.ball.x;
                     }
