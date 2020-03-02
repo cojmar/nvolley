@@ -65,10 +65,16 @@ define(function(require) {
                 });
             }, this);
 
-            this.input.on('pointerup', function (pointer) {
+            this.input.on('pointerup',  (pointer) =>{
                 this.net.send_cmd('client.click',{
                     x:Phaser.Math.Clamp(pointer.x, 52, 1748)                    
                 });
+                if (this.skill_prediction && !this.net.room.i_am_host){
+                    if (this.net.game.ball.getData('onPaddle'))
+                    {
+                        this.net.game.ball.setVelocity(-75,-300);                                    
+                    }
+                }
             }, this);               
             
             this.input.keyboard.on('keyup-' + 'ESC',  (event)=> {                
@@ -165,9 +171,9 @@ define(function(require) {
                         //this.ball.setVelocity(data.ball.Velocity[0],data.ball.Velocity[1]);
                     }                        
                     if(this.skill_prediction){
-                        if (this.ball.x < data.ball.x-17 || this.ball.x > data.ball.x+17 ) this.ball.x = data.ball.x; //this.init_from_net();
-                        if (this.ball.y < data.ball.y-17 || this.ball.y > data.ball.y+17 ) this.ball.y = data.ball.y;
-
+                        let dev =50;
+                        if (this.ball.x < data.ball.x-dev || this.ball.x > data.ball.x+dev || this.ball.y < data.ball.y-dev || this.ball.y > data.ball.y+dev)                       
+                       this.init_from_net();
 
                         return false;
                     } 
@@ -179,7 +185,26 @@ define(function(require) {
                     }
                 }
             }
+            if (data.broken_bricks){     
+                setTimeout( ()=>{
+                    var game = this.net.room.data.game;              
+                    game.broken_bricks = data.broken_bricks
+                    var my_bricks = this.bricks.getChildren();
+                    for (var n in my_bricks){
+                        var brick = my_bricks[n];
+                        if (game.broken_bricks.indexOf(n)!==-1){                        
+                            brick.disableBody(true, true);
+                        }else{
+                            brick.enableBody(false, 0, 0, true, true);    
+                        }                       
+                    }              
+                })           
+                
+
+            }
             
+           
+           
             
         },
         hitBrick: function (ball, brick)
@@ -313,7 +338,10 @@ define(function(require) {
                 }
             }
 
-            if (!this.net.room.i_am_host) return false;
+            if (!this.net.room.i_am_host){
+                if (this.skill_prediction && this.ball.y > 740) this.resetBall();
+                 return false;
+            }
             if (this.ball.y > 640)
             {
                 this.net.send_cmd('host.reset_ball');
