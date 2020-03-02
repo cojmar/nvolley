@@ -48,8 +48,11 @@
         connect() {
             if (this.connect_timeout) clearTimeout(this.connect_timeout);
             let server = arguments[0] || false;
-            if (server) this.server = server;            
-            this.init_socket();            
+            if (server) this.server = server;           
+            setTimeout(() => {
+                this.init_socket();    
+            }, 500); 
+                        
             return this;
         }
         disconnect() {
@@ -124,7 +127,7 @@
                 break
             }
             //postMessage(cmd_data);
-            //console.log(cmd_data);
+            //console.log(JSON.stringify( cmd_data));
         })        
         return true;
     }
@@ -139,8 +142,10 @@
             if (cb)cb(data.data);
         }
         network.connect = (data)=>{
-            run_mode.worker.postMessage({cmd:'connect',data:data});
-            network.init_socket(1);
+            
+            setTimeout(() => {
+                run_mode.worker.postMessage({cmd:'connect',data:data});    
+            }, 500);            
             return network;
         };
         network.send = (data)=>{
@@ -160,6 +165,9 @@
             network.events[cmd].push(call_back);            
             return network;
         };
+
+        network.init_socket(1);
+        network.socket.on = () => {network.on(arguments)}
     }
     window.network = network;
     return network;

@@ -158,7 +158,8 @@ define(function(require) {
         });
         net.socket.on('room.user_data', function(data)
 		{
-            if (!net.room) return false;
+            
+            if (!net.room) return false;            
             do_merge(net.room.users[data.user].data,data.data);
             log_room();
         });

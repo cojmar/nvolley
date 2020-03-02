@@ -103,6 +103,7 @@ define(function(require) {
             this.net.socket.on('room.user_data', (data)=>
 		    {                
                 let old_prediction =this.skill_prediction;
+                //console.log(this.net.room_info.users[this.net.room_info.me].data.skill_prediction);
                 this.skill_prediction = this.net.room_info.users[this.net.room_info.me].data.skill_prediction || true;
                 this.skill_prediction = (this.skill_prediction==="off")?false:true;
                 p_button.text=this.skill_prediction?"Prediction ON":"Prediction OFF";
