@@ -56,6 +56,7 @@ define(function(require) {
             //net.log(next_room);
             if(data.users<2){
                 net.send_cmd('join', data.room);
+                net.send_cmd('join', data.room);
             }else{
                 net.send_cmd('room_users', next_room);  
             }
@@ -64,12 +65,13 @@ define(function(require) {
             net.room = room_data;
             window.location.href='#'+btoa(net.room.name);
             net.clear_log();
+            
             net.room.i_am_host = (net.room.host === net.room.me)?true:false;
             let show_menu = (room_data.type==='lobby')?true:false;
             //console.log(show_menu);
             if (!net.room.data.game && net.room.i_am_host) init_game();
             else start_game(show_menu);
-            log_room();            
+            
         });
         net.socket.on('room.data',function(data){
             if (!net.room) return false;
