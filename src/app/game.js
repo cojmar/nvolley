@@ -55,8 +55,7 @@ define(function(require) {
             let next_room = prefix+(parseInt(room[1])+1);
             //net.log(next_room);
             if(data.users<2){
-                net.send_cmd('join', data.room);
-                net.send_cmd('join', data.room);
+                net.send_cmd('join', data.room);                
             }else{
                 net.send_cmd('room_users', next_room);  
             }
