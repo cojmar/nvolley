@@ -46,6 +46,7 @@
             });
         }
         connect() {
+            if(this.socket) this.socket.close(4666);
             if (this.connect_timeout) clearTimeout(this.connect_timeout);
             let server = arguments[0] || false;
             if (server) this.server = server;           

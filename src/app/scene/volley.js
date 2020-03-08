@@ -361,6 +361,7 @@ define(function(require) {
             this.resetLevel();
             var game = this.net.room.data.game;
             if (!game) return false;
+            if(!this.ball) return false;
             this.status = game.status;            
             this.player1.setPosition(game.player1.position.x,game.player1.position.y);
             this.player2.setPosition(game.player2.position.x,game.player2.position.y);

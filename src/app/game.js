@@ -9,7 +9,21 @@ define(function(require) {
     var Fingerprint = require('fingerprint');
     var fingerprint = new Fingerprint().get();
     var $ = require('jquery');
+
+    window.addEventListener('blur',()=>{
+        if (net && net.room_info){
+            net.send_cmd('set_data',{afk:Math.floor(Date.now() / 1000)});
+        }
+    });
+    window.addEventListener('focus',()=>{
+        if (net && net.room_info){
+            net.send_cmd('set_data',{afk:false});
+        }
+    });
     function init_net_room(){
+
+       
+
         function do_merge(data1,data2){        
             if (typeof data1 !=='object' || typeof data2 !=='object'){
                 data1 = data2;
@@ -82,6 +96,34 @@ define(function(require) {
             if (!net.room) return false;
             net.room.host = host;
             net.room.i_am_host = (net.room.host === net.room.me)?true:false;
+            if(net.room.data.game && net.room.i_am_host){
+                for (let user_k in net.room.users){
+                    let user = net.room.users[user_k]
+                    if(net.room.data.game.player1.user === false ){
+                    net.send_cmd('set_room_data',{
+                        game:{
+                            player1:{
+                                user:user_k
+                            },
+                            status:'ready',
+                        }
+                    });   
+                    continue;
+                }
+                if(net.room.data.game.player2.user === false ){
+                    net.send_cmd('set_room_data',{
+                        game:{
+                            player2:{
+                                user:user_k
+                            },
+                            status:'ready',
+                        }
+                    });   
+                }                
+            }
+
+            }
+
             if (net.room.i_am_host){                
                 if (!net.room.data.game){
                      init_game();
@@ -116,6 +158,7 @@ define(function(require) {
                         }
                     });   
                 }
+                
                 if(net.room.data.game.player2.user === false ){
                     net.send_cmd('set_room_data',{
                         game:{
@@ -272,10 +315,11 @@ define(function(require) {
     var game = false;
     function start_game(show_menu){
         if (game){
-            game.scene.scenes[1].init_from_net(); 
-            if (net.room.type ==='lobby'){                
-                net.game.scene.launch('menu');
-            }else{
+            if (!net.game) return setTimeout(()=>{start_game});
+            net.game.init_from_net(); 
+            if (net.room.type ==='lobby'){  
+                net.game.show_menu()                 
+            }else{                
                 
                 game.scene.scenes[2].show_game();
                 //net.game.scene.stop('menu');
