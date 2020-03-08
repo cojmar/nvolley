@@ -277,16 +277,18 @@ define(function(require) {
     var game = false;
     function start_game(show_menu){
         if (game){
-            if (!net.game) return setTimeout(()=>{start_game});
+            
+            if (!net.game) return setTimeout(()=>{start_game()});
+            
             net.game.init_from_net(); 
+            
             if (net.room.type ==='lobby'){  
                 net.game.show_menu()                 
-            }else{                
-                
+            }else{
                 game.scene.scenes[2].show_game();
-                //net.game.scene.stop('menu');
-                //net.game.scene.setVisible(true,'my_game');
-                //net.hide();
+                net.game.scene.stop('menu');
+                net.game.scene.setVisible(true,'my_game');
+                net.hide();
             }
             return false;
         }        
