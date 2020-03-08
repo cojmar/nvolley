@@ -9,7 +9,7 @@ define(function(require) {
     var Fingerprint = require('fingerprint');
     var fingerprint = new Fingerprint().get();
     var $ = require('jquery');
-    /*
+    
     window.addEventListener('blur',()=>{
         if (net && net.room_info){
             let afk = Math.floor(Date.now() / 1000);
@@ -17,7 +17,7 @@ define(function(require) {
             net.send_cmd('set_data',{afk:afk});
         }
     });
-    */
+    
     window.addEventListener('focus',()=>{
         if (net && net.room_info){            
             net.send_cmd('set_data',{afk:false});
@@ -25,10 +25,6 @@ define(function(require) {
     });
     document.addEventListener("visibilitychange", (v)=>{
         let afk =(v.target.visibilityState ==='hidden')?Math.floor(Date.now() / 1000):false;
-        if (!window.afk_init){
-            window.afk_init = true;
-            return;
-        }         
         net.send_cmd('set_data',{afk:afk});
     });
     function init_net_room(){
@@ -276,12 +272,9 @@ define(function(require) {
     }
     var game = false;
     function start_game(show_menu){
-        if (game){
-            
-            if (!net.game) return setTimeout(()=>{start_game()});
-            
-            net.game.init_from_net(); 
-            
+        if (game){            
+            if (!net.game) return setTimeout(()=>{start_game()});            
+            net.game.init_from_net();            
             if (net.room.type ==='lobby'){  
                 net.game.show_menu()                 
             }else{
