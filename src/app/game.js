@@ -12,8 +12,7 @@ define(function(require) {
     
     window.addEventListener('blur',()=>{
         if (net && net.room_info){
-            let afk = Math.floor(Date.now() / 1000);
-            console.log(afk);
+            let afk = Math.floor(Date.now() / 1000);            
             net.send_cmd('set_data',{afk:afk});
         }
     });
@@ -25,7 +24,7 @@ define(function(require) {
     });
     document.addEventListener("visibilitychange", (v)=>{
         let afk =(v.target.visibilityState ==='hidden')?Math.floor(Date.now() / 1000):false;
-        net.send_cmd('set_data',{afk:afk});
+        //net.send_cmd('set_data',{afk:afk});
     });
     function init_net_room(){
 
@@ -104,15 +103,13 @@ define(function(require) {
         net.socket.on('room.info',function(room_data){            
             net.room = room_data;
             window.location.href='#'+btoa(net.room.name);
-            net.clear_log();            
-            net.calc_room();
+            net.clear_log();                        
             net.room.i_am_host = (net.room.host === net.room.me)?true:false;
-            let show_menu = (room_data.type==='lobby')?true:false;
-            
+            let show_menu = (room_data.type==='lobby')?true:false;                       
             //console.log(show_menu);
             if (!net.room.data.game) init_game();
             else start_game(show_menu);
-            
+            net.calc_room();            
         });
         net.socket.on('room.data',function(data){
             if (!net.room) return false;
