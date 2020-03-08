@@ -9,20 +9,48 @@ define(function(require) {
     var Fingerprint = require('fingerprint');
     var fingerprint = new Fingerprint().get();
     var $ = require('jquery');
-
+    /*
     window.addEventListener('blur',()=>{
         if (net && net.room_info){
-            net.send_cmd('set_data',{afk:Math.floor(Date.now() / 1000)});
+            let afk = Math.floor(Date.now() / 1000);
+            console.log(afk);
+            net.send_cmd('set_data',{afk:afk});
         }
     });
+    */
     window.addEventListener('focus',()=>{
-        if (net && net.room_info){
+        if (net && net.room_info){            
             net.send_cmd('set_data',{afk:false});
         }
     });
+    document.addEventListener("visibilitychange", (v)=>{
+        let afk =(v.target.visibilityState ==='hidden')?Math.floor(Date.now() / 1000):false;
+        if (!window.afk_init){
+            window.afk_init = true;
+            return;
+        }         
+        net.send_cmd('set_data',{afk:afk});
+    });
     function init_net_room(){
 
-       
+       net.calc_room = function(){            
+            if(net.room.data.game && net.game){
+                let users = Object.keys(net.room.users);                
+                let snd = {
+                    game:{
+                        player1:{
+                            user:users[0] || false
+                        },
+                        player2:{
+                            user:users[1] || false
+                        },
+                        status:(users.length==2)?'ready':'pending',
+                    }
+                }
+                net.game.process_game_data(snd.game)
+                net.send_cmd('set_room_data',snd);
+            }
+       }
 
         function do_merge(data1,data2){        
             if (typeof data1 !=='object' || typeof data2 !=='object'){
@@ -60,7 +88,7 @@ define(function(require) {
             if (!net.url_room) return false;
             if(net.url_room !== data.room){     
                 net.send_cmd('join',net.url_room);                
-            }            
+            }                        
         });
         net.socket.on('room.users',function(data){
             let prefix = net.new_game_prefix;
@@ -69,26 +97,30 @@ define(function(require) {
             let next_room = prefix+(parseInt(room[1])+1);
             //net.log(next_room);
             if(data.users<2){
-                net.send_cmd('join', data.room);                
+                net.send_cmd('join', data.room);                               
             }else{
                 net.send_cmd('room_users', next_room);  
             }
         });
+        net.socket.on('room.user_reconnect',function(){
+            net.calc_room();
+        });
         net.socket.on('room.info',function(room_data){            
             net.room = room_data;
             window.location.href='#'+btoa(net.room.name);
-            net.clear_log();
-            
+            net.clear_log();            
+            net.calc_room();
             net.room.i_am_host = (net.room.host === net.room.me)?true:false;
             let show_menu = (room_data.type==='lobby')?true:false;
+            
             //console.log(show_menu);
-            if (!net.room.data.game && net.room.i_am_host) init_game();
+            if (!net.room.data.game) init_game();
             else start_game(show_menu);
             
         });
         net.socket.on('room.data',function(data){
             if (!net.room) return false;
-            do_merge(net.room.data,data.data);
+            do_merge(net.room.data,data.data);            
             if (data.data.game && net.game && net.game.process_game_data) net.game.process_game_data(data.data.game);           
             log_room();
         });
@@ -96,33 +128,7 @@ define(function(require) {
             if (!net.room) return false;
             net.room.host = host;
             net.room.i_am_host = (net.room.host === net.room.me)?true:false;
-            if(net.room.data.game && net.room.i_am_host){
-                for (let user_k in net.room.users){
-                    let user = net.room.users[user_k]
-                    if(net.room.data.game.player1.user === false ){
-                    net.send_cmd('set_room_data',{
-                        game:{
-                            player1:{
-                                user:user_k
-                            },
-                            status:'ready',
-                        }
-                    });   
-                    continue;
-                }
-                if(net.room.data.game.player2.user === false ){
-                    net.send_cmd('set_room_data',{
-                        game:{
-                            player2:{
-                                user:user_k
-                            },
-                            status:'ready',
-                        }
-                    });   
-                }                
-            }
-
-            }
+            net.calc_room()           
 
             if (net.room.i_am_host){                
                 if (!net.room.data.game){
@@ -131,10 +137,10 @@ define(function(require) {
                 else{
                     
                     //if (net.room.i_am_host) net.game.p_button.visible=false;
-                    if (net.room.data.game.ball.Velocity[0] ===0 && net.room.data.game.ball.Velocity[1]===0){                        
+                    if (net.game && net.room.data.game.ball.Velocity[0] ===0 && net.room.data.game.ball.Velocity[1]===0){                        
                         net.game.resetBall();    
                     }                    
-                    net.game.ball.setVelocity(net.room.data.game.ball.Velocity[0],net.room.data.game.ball.Velocity[1]);
+                    if (net.game) net.game.ball.setVelocity(net.room.data.game.ball.Velocity[0],net.room.data.game.ball.Velocity[1]);
                 }
             }else{
                 //net.game.p_button.visible=true;
@@ -145,59 +151,15 @@ define(function(require) {
         net.socket.on('room.user_join', function(data)
 		{
             if (!net.room) return false;
-            net.room.users[data.user] = data.data;
-            if(net.room.data.game && net.room.i_am_host){
-
-                if(net.room.data.game.player1.user === false ){
-                    net.send_cmd('set_room_data',{
-                        game:{
-                            player1:{
-                                user:data.user
-                            },
-                            status:'ready',
-                        }
-                    });   
-                }
-                
-                if(net.room.data.game.player2.user === false ){
-                    net.send_cmd('set_room_data',{
-                        game:{
-                            player2:{
-                                user:data.user
-                            },
-                            status:'ready',
-                        }
-                    });   
-                }                
-            }
+            net.room.users[data.user] = data.data;            
+            net.calc_room()            
 			log_room();
 		});		
 		net.socket.on('room.user_leave', function(data)
 		{
             if (!net.room) return false;
             if (net.room.users[data.user]) delete net.room.users[data.user];
-            if(net.room.data.game){
-                if(net.room.data.game.player1.user === data.user ){
-                    net.send_cmd('set_room_data',{
-                        game:{
-                            player1:{
-                                user:false
-                            },
-                            status:'pending',
-                        }
-                    });   
-                }
-                if(net.room.data.game.player2.user === data.user ){
-                    net.send_cmd('set_room_data',{
-                        game:{
-                            player2:{
-                                user:false
-                            },
-                            status:'pending',
-                        }
-                    });   
-                }                
-            }            
+            net.calc_room();         
 			log_room();
         });
         net.socket.on('room.user_data', function(data)

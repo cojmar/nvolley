@@ -111,7 +111,7 @@ define(function(require) {
                     this.net.send_cmd('join', this.net.room.me+' - '+Date.now());  
                 break;
                 case 'Join public game':
-                    this.net.send_cmd('room_users', this.net.new_game_prefix+'2');  
+                    this.net.send_cmd('room_users', this.net.new_game_prefix+'1');  
                 break;                
                 case 'Join private game':
                     button.setColor('#232344'); 
