@@ -187,7 +187,7 @@ define(function(require) {
                 }
             }
             if (data.broken_bricks){     
-                setTimeout( ()=>{
+                /*setTimeout( ()=>{*/
                     var game = this.net.room.data.game;              
                     game.broken_bricks = data.broken_bricks
                     var my_bricks = this.bricks.getChildren();
@@ -199,7 +199,7 @@ define(function(require) {
                             brick.enableBody(false, 0, 0, true, true);    
                         }                       
                     }              
-                })           
+                //})           
                 
 
             }

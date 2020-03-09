@@ -70,9 +70,20 @@
             return window.location.href.split('://')[1].split('/')[0];
         }
         map_room(ev,data){    
+            if (!this.use_shared_objects) return true;
             switch(ev){
                 case 'room.info':
-                    this.room = data
+                    this.room = data                    
+                    if (this.me){
+                        this.room.i_am_host = (this.room.host === this.room.me)?true:false;
+                        this.me.data = this.room.users[this.room.me].data;
+                    }
+                break
+                case 'room.host':
+                    if (this.room){
+                        this.room.host = data;
+                        this.room.i_am_host = (this.room.host === this.room.me)?true:false;
+                    }            
                 break
                 case 'my_info':
                 case 'auth.info':
@@ -91,8 +102,7 @@
                 break
                 case 'room.user_data':
                     if (data.user && this.room && this.room.users[data.user]){
-                        this.do_merge(this.room.users[data.user].data,data.data);
-                        if (data.user === this.room.me && this.me) this.do_merge(this.me.data,data.data);                        
+                        this.do_merge(this.room.users[data.user].data,data.data);                                            
                     }
                 break
                 case 'room.data':

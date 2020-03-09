@@ -27,7 +27,6 @@ define(function(require) {
         //net.send_cmd('set_data',{afk:afk});
     });
     function init_net_room(){
-
        net.calc_room = function(){            
             if(net.room.data.game && net.game){
                 let users = Object.keys(net.room.users);                
@@ -42,29 +41,10 @@ define(function(require) {
                         status:(users.length==2)?'ready':'pending',
                     }
                 }
-                net.game.process_game_data(snd.game)
+                //net.game.process_game_data(snd.game)
                 net.send_cmd('set_room_data',snd);
             }
-       }
-
-        function do_merge(data1,data2){        
-            if (typeof data1 !=='object' || typeof data2 !=='object'){
-                data1 = data2;
-                return true;
-            }
-            for(var n in data2){
-                if (!data1[n]){
-                    data1[n] = data2[n];
-                }else{
-                    if (typeof data1[n] ==='object' && typeof data2[n] ==='object'){
-                        do_merge(data1[n],data2[n]);                    
-                    }else{
-                        data1[n] = data2[n];
-                    }
-                }            
-            }
-            return true;
-        }
+       }        
         function log_room(){
             return false;
             $(net.output_div).html('');
@@ -101,34 +81,29 @@ define(function(require) {
             net.calc_room();
         });
         net.socket.on('room.info',function(room_data){            
-            net.room = room_data;
+            net.room = net.socket.room;
             window.location.href='#'+btoa(net.room.name);
             net.clear_log();                        
             net.room.i_am_host = (net.room.host === net.room.me)?true:false;
-            let show_menu = (room_data.type==='lobby')?true:false;                       
-            //console.log(show_menu);
+            let show_menu = (net.room.type==='lobby')?true:false;                       
+            
             if (!net.room.data.game) init_game();
-            else start_game(show_menu);
-            net.calc_room();            
+            else start_game(show_menu);                        
+            net.calc_room();
         });
         net.socket.on('room.data',function(data){
             if (!net.room) return false;
-            do_merge(net.room.data,data.data);            
             if (data.data.game && net.game && net.game.process_game_data) net.game.process_game_data(data.data.game);           
             log_room();
         });
         net.socket.on('room.host',function(host){            
-            if (!net.room) return false;
-            net.room.host = host;
-            net.room.i_am_host = (net.room.host === net.room.me)?true:false;
-            net.calc_room()           
-
+            if (!net.room) return false;            
+            net.calc_room()
             if (net.room.i_am_host){                
                 if (!net.room.data.game){
                      init_game();
                 }
-                else{
-                    
+                else{                    
                     //if (net.room.i_am_host) net.game.p_button.visible=false;
                     if (net.game && net.room.data.game.ball.Velocity[0] ===0 && net.room.data.game.ball.Velocity[1]===0){                        
                         net.game.resetBall();    
@@ -142,26 +117,16 @@ define(function(require) {
         });
      
         net.socket.on('room.user_join', function(data)
-		{
-            if (!net.room) return false;
-            net.room.users[data.user] = data.data;            
+		{            
             net.calc_room()            
 			log_room();
 		});		
 		net.socket.on('room.user_leave', function(data)
 		{
-            if (!net.room) return false;
-            if (net.room.users[data.user]) delete net.room.users[data.user];
             net.calc_room();         
 			log_room();
         });
-        net.socket.on('room.user_data', function(data)
-		{
-            
-            if (!net.room) return false;            
-            do_merge(net.room.users[data.user].data,data.data);
-            log_room();
-        });
+        
         
         //==Custom
         net.socket.on('client.mouse', function(data)
