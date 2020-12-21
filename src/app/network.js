@@ -1,6 +1,6 @@
 define(function(require) {
-    var io = require('https://ws.emupedia.net/info/app/u_socket_es5');
-    //var io = require('./u_socket');
+
+    var io = require('./u_socket');
     //var io = require('./u_socket_es5');
     //console.log(config);
     var client_loader = {};
