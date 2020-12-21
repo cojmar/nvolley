@@ -105,9 +105,7 @@
             return true;
         }
         strip_html(str) {
-            return str.replace(/[\u00A0-\u9999<>&]/g, function(i) {
-                return '&#' + i.charCodeAt(0) + ';';
-            });
+            return str.replace(/(<([^>]+)>)/gi, "").replace('<', '&lt;').replace('>', '&gt;')
         };
         emit_event(ev, data) {
             if (!ev) return false;
