@@ -66,7 +66,9 @@
 			return this;
 		}
 		getBaseUrl() {
-			if (!run_mode.main) return false;
+			if (typeof run_mode !== 'undefined') {
+				if (!run_mode.main) return false;
+			}
 			if (typeof window === 'undefined') return 'localhost';
 			return window.location.href.split('://')[1].split('/')[0];
 		}
@@ -153,7 +155,7 @@
 		}
 		connect_socket(no_ws = false) {
 			this.ws = new WebSocket(this.server);
-			this.ws.binaryType = "arraybuffer"
+			if (typeof BSON !== 'undefined') this.ws.binaryType = "arraybuffer"
 			this.ws.onopen = () => {
 				this.connected = true;
 				this.emit_event('connect', { server: this.server });
@@ -179,17 +181,6 @@
 				this.emit_event(data.cmd, data.data)
 			};
 			return this;
-		}
-		ab2str(buf) {
-			return String.fromCharCode.apply(null, new Uint16Array(buf));
-		}
-		str2ab(str) {
-			var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
-			var bufView = new Uint16Array(buf);
-			for (var i = 0, strLen = str.length; i < strLen; i++) {
-				bufView[i] = str.charCodeAt(i);
-			}
-			return buf;
 		}
 		send(data) {
 			if (data.cmd === 'connect') return this.connect(data.data);

@@ -1,7 +1,7 @@
 define(function(require) {
-
-	var io = require('./u_socket');
 	var BSON = require('bson.bundle');
+	var io = require('./u_socket');
+
 	//var io = require('./u_socket_es5');
 	//console.log(config);
 	var client_loader = {};
@@ -79,6 +79,7 @@ define(function(require) {
 
 		});
 		client.socket.on('room.user_join', function(data) {
+			if (!client.room_info) return
 			if (client.room_info.room !== data.room) return;
 			if (client.room_info) {
 				client.room_info.users[data.user] = data.data;
@@ -86,6 +87,7 @@ define(function(require) {
 			client.client_room_users.append("<div id=\"room_user_" + data.user + "\" style=\"color:" + client.colors[3] + "\">" + data.data.info.nick + "</div>");
 		});
 		client.socket.on('room.user_leave', function(data) {
+			if (!client.room_info) return
 			if (client.room_info.room !== data.room) return;
 			$("#room_user_" + data.user).remove();
 		});
